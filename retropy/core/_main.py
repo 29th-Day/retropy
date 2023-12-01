@@ -1,14 +1,14 @@
 from ctypes import *
 
-from .structs import *
-from .enums import *
-from .typedefs import *
+from ._structs import *
+from ._enums import *
+from ._typedefs import *
 
-from .config import LibRetroOption
-from .exceptions import NoGameLoaded, GameAlreadyLoaded
-from .utils import Savestate, PlayerInput
+from ._config import LibRetroOption
+from ._exceptions import NoGameLoaded, GameAlreadyLoaded
+from ._utils import Savestate, PlayerInput
 
-class LibRetro:
+class RetroPy:
     game_loaded: bool = False
     color_format: RETRO_COLOR_FORMAT = RETRO_COLOR_FORMAT.FORMAT_0RGB1555
     player_inputs: list[PlayerInput] = [PlayerInput()]

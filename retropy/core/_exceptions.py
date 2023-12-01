@@ -8,3 +8,9 @@ class GameAlreadyLoaded(RuntimeError):
 
 class UnknownColorFormat(RuntimeError):
     pass
+
+class GameCannotBeLoaded(RuntimeError):
+    pass
+
+class UnkownEnvironmentCommand(RuntimeError):
+    pass

@@ -2,8 +2,8 @@ from ctypes import cast, POINTER, c_void_p, c_uint32, c_uint16
 
 import numpy as np
 
-from .enums import RETRO_COLOR_FORMAT
-from .exceptions import UnknownColorFormat
+from ._enums import RETRO_COLOR_FORMAT
+from ._exceptions import UnknownColorFormat
 
 def buffer_to_frame(data: c_void_p, width: int, height: int, pitch: int, format: RETRO_COLOR_FORMAT):
     """Convert the raw void* data into a useable numpy array.
