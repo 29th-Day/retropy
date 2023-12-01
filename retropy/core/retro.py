@@ -29,6 +29,7 @@ class RetroPy:
     
     pixel_format: PIXEL_FORMAT
     variables: dict[bytes, dict[str, bytes | Tuple[bytes]]] = {}
+    loaded: bool = False
     
     def __init__(self, path: str) -> None:
         """Loads needed DLL and initializes the libretro core
@@ -61,7 +62,7 @@ class RetroPy:
         self.core.retro_init()
 
     def __del__(self):
-    #     self.unload()
+        self.unload()
         self.core.retro_deinit()
         
     # region Properties
@@ -116,6 +117,10 @@ class RetroPy:
             bool: Success
         """
         
+        if self.loaded:
+            logging.debug("Game already loaded")
+            return False
+        
         romPath = Path(path).resolve()
         if not romPath.is_file():
             raise FileNotFoundError(f"`path` ({romPath}) is not a file")
@@ -127,7 +132,11 @@ class RetroPy:
             meta = b"metadata"
         )
         
-        return bool(self.core.retro_load_game(byref(game)))
+        self.loaded = bool(self.core.retro_load_game(byref(game)))
+        
+        logging.debug("Game loaded")
+        
+        return self.loaded
     
     def unload(self):
         """Unload current game
@@ -135,6 +144,9 @@ class RetroPy:
         Must be called before loading another game
         """
         self.core.retro_unload_game()
+        self.loaded = False
+        
+        logging.debug("Game unloaded")
     
     def frame_advance(self):
         """
@@ -147,6 +159,7 @@ class RetroPy:
         Reset current game to intial state
         """
         self.core.retro_reset()
+        logging.debug("Game reset")
     
     def saveState(self) -> Savestate | None:
         """Save current core state
@@ -160,6 +173,8 @@ class RetroPy:
         
         success = bool(self.core.retro_serialize(save.data, save.size))
         
+        logging.debug(f"Save State ({success})")
+        
         return save if success else None
   
     def loadState(self, savestate: Savestate) -> bool:
@@ -172,7 +187,11 @@ class RetroPy:
             bool: Success
         """
         
-        return bool(self.core.retro_unserialize(savestate.data, savestate.size))
+        success = bool(self.core.retro_unserialize(savestate.data, savestate.size))
+        
+        logging.debug(f"Load State ({success})")
+        
+        return success
     
     # endregion
 
@@ -194,6 +213,8 @@ class RetroPy:
             bool: Meaning depending on command
         """
         cmd = RETRO_ENVIRONMENT(cmd)
+        
+        # return False
         
         def foreach(array, cond):
             i = 0
@@ -276,6 +297,8 @@ class RetroPy:
             return False
         
         elif cmd == RETRO_ENVIRONMENT.GET_CAMERA_INTERFACE:
+            return False
+            
             data = cast(data, POINTER(retro_camera_callback)).contents
             
             self.__cam = lambda *args: print("cam:", args)
@@ -295,6 +318,8 @@ class RetroPy:
             return True
         
         elif cmd == RETRO_ENVIRONMENT.GET_LOG_INTERFACE:
+            return False
+            
             data = cast(data, POINTER(retro_log_callback)).contents
             
             self.__log = lambda *args: print("log:", args)
@@ -335,6 +360,8 @@ class RetroPy:
             return True # accept Options Version
         
         elif cmd == RETRO_ENVIRONMENT.SET_AUDIO_BUFFER_STATUS_CALLBACK:
+            return False
+            
             if data:
                 data = cast(data, POINTER(retro_audio_buffer_status_callback)).contents
                 

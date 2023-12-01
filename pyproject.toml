@@ -1,0 +1,15 @@
+[project]
+name = "retropy"
+description = "Python frontend for libretro"
+version = "0.1.0"
+authors = [
+    { name = "29th-Day", email = "github.com/29th-Day" }
+]
+
+dependencies = [
+]
+
+[project.optional-dependencies]
+numpy = [
+    "numpy"
+]

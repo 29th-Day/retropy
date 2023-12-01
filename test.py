@@ -1,30 +1,19 @@
-from retropy import RetroPy
-
 from ctypes import *
 
-CORE = "C:/Gaming/RetroArch/cores/mgba_libretro.dll"
-
-GAME = "C:/Gaming/ROMS/GBA/"
-
-GAMES = [
-    "cpu_instrs.gb",
-    "Tetris.gb",
-    "Legend of Zelda - A Link to the Past & Four Swords.gba",
-    "Legend of Zelda - Link's Awakening DX.gbc",
-    "Pokemon - Crystal.gbc",
-]
+from retropy import RetroPy
+from env import CORE, GAMES
 
 def main():
     core = RetroPy(CORE)
 
-    success = core.load(GAME + GAMES[2])
+    success = core.load(GAMES[0])
 
     if not success:
         raise RuntimeError()
 
     # core.unload()
 
-    for _ in range(1):
+    for _ in range(10):
         core.frame_advance()
     
     save = core.saveState()
