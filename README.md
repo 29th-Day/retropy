@@ -12,7 +12,15 @@ RetroPy uses provided Shared Libraries (`.dll` / `.so`) and a pythonic wrapper, 
 
 ## Install
 
+### Pip
+
 TODO
+
+### Conda?
+
+TODO?
+
+<!-- maybe write that conda is not officially supported to not make users search unnessecarily -->
 
 ### Cores
 
