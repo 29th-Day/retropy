@@ -1,3 +1,0 @@
-# libretro.h: 2685 - 2706
-
-# RUMBLE (NOT IMPLEMENTED)

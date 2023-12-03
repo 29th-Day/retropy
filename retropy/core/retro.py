@@ -2,36 +2,26 @@ from ctypes import *
 
 import logging
 from pathlib import Path
-from typing import Tuple, Union  # , TypeVar, Sequence, Callable, Any
+from typing import Tuple
+
+from .renderer.framebuffer import PixelFormat
+from .callbacks import 
 
 
-from .callbacks import *
-from .core import *
-from .system import *
-from .environment import *
-from .framebuffer import *
-from .input import *
-from .logging import *
-from .memory import *
-from .camera import *
-from .audio import *
-
-from ._exceptions import *
-
+# from ..utils.exceptions import *
 from ..utils.savestate import Savestate
-from ..utils.video import buffer_to_frame
+from ..utils.video import buffer_to_frame, Frame
 
 logging.basicConfig(level=logging.WARNING)
-
-# T = TypeVar('T')
 
 
 class RetroPy:
     """Python(ic) frontend for libretro"""
 
-    pixel_format: PIXEL_FORMAT
+    pixel_format: PixelFormat
     variables: dict[bytes, dict[str, bytes | Tuple[bytes]]] = {}
     loaded: bool = False
+    last_frame: Frame = None  # type can be looked up in frame_advance()
 
     def __init__(self, path: str) -> None:
         """Loads needed DLL and initializes the libretro core
@@ -77,31 +67,31 @@ class RetroPy:
         """
         return self.core.retro_api_version()
 
-    def region(self) -> RETRO_REGION:
+    def region(self) -> Region:
         """Retrieve cores regional code
 
         Returns:
             RETRO_REGION: region
         """
-        return RETRO_REGION(self.core.retro_get_region())
+        return Region(self.core.retro_get_region())
 
-    def system_info(self) -> retro_system_info:
+    def system_info(self) -> SystemInfo:
         """Retrieve cores system information
 
         Returns:
             retro_system_info: core information (static w.r.t. core)
         """
-        info = retro_system_info()
+        info = SystemInfo()
         self.core.retro_get_system_info(byref(info))
         return info
 
-    def system_av_info(self) -> retro_system_av_info:
+    def system_av_info(self) -> SystemAvInfo:
         """Retrieve cores system information specific for a game
 
         Returns:
             retro_system_av_info: core information (dynamic w.r.t. game)
         """
-        info = retro_system_av_info()
+        info = SystemAvInfo()
         self.core.retro_get_system_av_info(byref(info))
         return info
 
@@ -152,6 +142,7 @@ class RetroPy:
         Run core for a single video frame
         """
         self.core.retro_run()
+        return self.last_frame
 
     def reset(self):
         """
@@ -248,10 +239,10 @@ class RetroPy:
             return True
 
         elif cmd == RETRO_ENVIRONMENT.SET_INPUT_DESCRIPTORS:
-            data = cast(data, POINTER(retro_input_descriptor))
+            data = cast(data, POINTER(InputDescriptor))
 
             # print(value)
-            input: retro_input_descriptor
+            input: InputDescriptor
             for input in foreach(data, lambda v: v.description):
                 # print(input.description)
                 ...
@@ -261,7 +252,7 @@ class RetroPy:
             return True
 
         elif cmd == RETRO_ENVIRONMENT.GET_VARIABLE:
-            data = cast(data, POINTER(retro_variable)).contents
+            data = cast(data, POINTER(CoreVariable)).contents
 
             data.value = self.variables[data.key]["value"]
 
@@ -270,7 +261,7 @@ class RetroPy:
             return True
 
         elif cmd == RETRO_ENVIRONMENT.SET_VARIABLES:
-            data = cast(data, POINTER(retro_variable))
+            data = cast(data, POINTER(CoreVariable))
 
             # variables = {}
 
@@ -298,7 +289,7 @@ class RetroPy:
         elif cmd == RETRO_ENVIRONMENT.GET_CAMERA_INTERFACE:
             return False
 
-            data = cast(data, POINTER(retro_camera_callback)).contents
+            data = cast(data, POINTER(CameraCallback)).contents
 
             self.__cam = lambda *args: print("cam:", args)
 
@@ -321,7 +312,7 @@ class RetroPy:
         elif cmd == RETRO_ENVIRONMENT.GET_LOG_INTERFACE:
             return False
 
-            data = cast(data, POINTER(retro_log_callback)).contents
+            data = cast(data, POINTER(LogCallback)).contents
 
             self.__log = lambda *args: print("log:", args)
 
@@ -364,7 +355,7 @@ class RetroPy:
             return False
 
             if data:
-                data = cast(data, POINTER(retro_audio_buffer_status_callback)).contents
+                data = cast(data, POINTER(AudioBufferStatusCallback)).contents
 
                 self.__audio_status = lambda *args: print("audio status:", args)
 
@@ -386,7 +377,7 @@ class RetroPy:
         else:
             logging.warning(f"{cmd} (not implemeted)")
 
-        return True
+        return False
 
     def video_refresh(
         self, data: c_void_p, width: int, height: int, pitch: int
@@ -401,8 +392,12 @@ class RetroPy:
         """
         logging.debug("Callback: video_refresh")
 
-        _ = buffer_to_frame(
-            data, (width, height, pitch), self.pixel_format, numpy=False
+        # Data may be NULL if GET_CAN_DUPE returns true (libretro.h: 4381)
+        if not data:
+            return
+
+        self.last_frame = buffer_to_frame(
+            data, (height, width, pitch), self.pixel_format, numpy=False
         )
 
     def audio_sample(self, left: int, right: int) -> None:
@@ -445,6 +440,11 @@ class RetroPy:
             int: Value of input action
         """
         logging.debug("Callback: input_state")
+
+        device = Device(device)
+        id = Joypad(id)
+
+        print(f"{port=}, {device}, {id}")
 
         return 0
 

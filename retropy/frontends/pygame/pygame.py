@@ -7,6 +7,7 @@ from ..enums import RETRO_INPUT, RETRO_INPUT_JOYPAD
 
 import pygame
 
+
 class Retro_pyGame(LibRetro):
     options: PyGameOption
     running: bool = True
@@ -19,7 +20,7 @@ class Retro_pyGame(LibRetro):
         pygame.K_i: (0, RETRO_INPUT_JOYPAD.A),
         pygame.K_l: (0, RETRO_INPUT_JOYPAD.B),
         pygame.K_j: (0, RETRO_INPUT_JOYPAD.SELECT),
-        pygame.K_k: (0, RETRO_INPUT_JOYPAD.START)
+        pygame.K_k: (0, RETRO_INPUT_JOYPAD.START),
     }
 
     def __init__(self, dll_path: str, options: PyGameOption = None):
@@ -31,10 +32,14 @@ class Retro_pyGame(LibRetro):
         super().run()
         self.clock.tick(self.options.fps)
 
-    def cb_video_refresh(self, data: c_void_p, width: c_uint32, height: c_uint32, pitch: c_size_t):
+    def cb_video_refresh(
+        self, data: c_void_p, width: c_uint32, height: c_uint32, pitch: c_size_t
+    ):
         if not hasattr(self, "display"):
-            self.display = pygame.display.set_mode((int(width * self.options.scaling), int(height * self.options.scaling)))
-        
+            self.display = pygame.display.set_mode(
+                (int(width * self.options.scaling), int(height * self.options.scaling))
+            )
+
         frame = buffer_to_frame(data, width, height, pitch, self.color_format)
         frame = frame_to_rgb(frame, self.color_format)
 
@@ -48,7 +53,9 @@ class Retro_pyGame(LibRetro):
     def cb_audio_sample(self, left: int, right: int):
         pass
 
-    def cb_audio_sample_batch(self, data: POINTER(c_int16), frames: c_size_t) -> c_size_t:
+    def cb_audio_sample_batch(
+        self, data: POINTER(c_int16), frames: c_size_t
+    ) -> c_size_t:
         return 0
 
     def cb_input_poll(self):

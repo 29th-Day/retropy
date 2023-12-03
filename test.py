@@ -14,30 +14,30 @@ def main():
 
     # core.unload()
 
-    for _ in range(5000):
+    for _ in range(1):
         core.frame_advance()
 
     save = core.saveState()
 
-    # print(save.data)
+    if not save:
+        raise RuntimeError()
 
     core.reset()
 
     success = core.loadState(save)
 
-    print(success)
-
-    print("Done")
+    if not success:
+        raise RuntimeError()
 
 
 def test1():
-    from retropy.core.environment import retro_variable
+    from retropy.core.environment import CoreVariable
 
     def func(data: c_void_p):
-        data = cast(data, POINTER(retro_variable)).contents
+        data = cast(data, POINTER(CoreVariable)).contents
         data.value = b"456"
 
-    v = retro_variable(key=b"okay", value=b"123")
+    v = CoreVariable(key=b"okay", value=b"123")
     print(v.value)
 
     func(byref(v))

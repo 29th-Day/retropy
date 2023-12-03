@@ -1,14 +1,13 @@
-# libretro.h
-
 from ctypes import *
-from enum import IntEnum, Enum
-
-# region 497 - 1854
+from enum import Enum
 
 EXPERIMENTAL = 0x10000
 PRIVATE = 0x20000
 
+
 class RETRO_ENVIRONMENT(Enum):
+    """RETRO_ENVIRONMENT_"""
+
     UNKOWN = 0
     SET_ROTATION = 1
     GET_OVERSCAN = 2
@@ -64,7 +63,7 @@ class RETRO_ENVIRONMENT(Enum):
     SET_CORE_OPTIONS = 53
     SET_CORE_OPTIONS_INTL = 54
     SET_CORE_OPTIONS_DISPLAY = 55
-    GET_PREFERRED_HW_RENDER  = 56
+    GET_PREFERRED_HW_RENDER = 56
     GET_DISK_CONTROL_INTERFACE_VERSION = 57
     SET_DISK_CONTROL_EXT_INTERFACE = 58
     GET_MESSAGE_INTERFACE_VERSION = 59
@@ -81,18 +80,11 @@ class RETRO_ENVIRONMENT(Enum):
     SET_VARIABLE = 70
     GET_THROTTLE_STATE = 71 | EXPERIMENTAL
 
-# endregion
 
-# region 3631 - 3654
+class CoreVariable(Structure):
+    """retro_variable"""
 
-class retro_variable(Structure):
-    _fields_ = [
-        ('key', c_char_p),
-        ('value', c_char_p)
-    ]
+    _fields_ = [("key", c_char_p), ("value", c_char_p)]
 
     key: bytes
     value: bytes
-
-# endregion
-        

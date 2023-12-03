@@ -1,10 +1,16 @@
-# libretro.h
+from enum import Enum
 
-from enum import IntEnum
 
-# region 259-299
+class Region(Enum):
+    """RETRO_REGION_"""
 
-class Language(IntEnum):
+    NTSC = 0
+    PAL = 1
+
+
+class Language(Enum):
+    """retro_language"""
+
     ENGLISH = 0
     JAPANESE = 1
     FRENCH = 2
@@ -38,5 +44,3 @@ class Language(IntEnum):
     BRITISH_ENGLISH = 30
     HUNGARIAN = 31
     BELARUSIAN = 32
-
-# endregion
