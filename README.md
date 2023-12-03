@@ -6,9 +6,9 @@
 
 ## About
 
-RetroPy is a libretro frontend (NOT CORE) written in Python. It is meant to be a bridge between fast, accuarte, well implemented, and tested emulators and Python.
+RetroPy is a libretro frontend (NOT CORE) written in Python. It is meant bridge the gap between fast, accurate, well-implemented, and tested emulators and Python.
 
-RetroPy uses provided Shared Libraries (`.dll` / `.so`) and a pythonic wrapper, making heavy use of `ctypes`, to enable the user to interact with a large variety of emulators and therefore videogames.
+RetroPy utilizes supplied Shared Libraries (`.dll` / `.so`) and a pythonic wrapper, leveraging `ctypes` extensively. This approach enables users to seamlessly interact with a diverse range of emulators and, consequently, video games.
 
 ## Install
 
@@ -16,15 +16,13 @@ RetroPy uses provided Shared Libraries (`.dll` / `.so`) and a pythonic wrapper, 
 
 TODO
 
-### Conda?
+### Conda
 
-TODO?
-
-<!-- maybe write that conda is not officially supported to not make users search unnessecarily -->
+Currently, there is no official support for Conda.
 
 ### Cores
 
-A collection of cores can be downloaded from the build artifact of libretro's first-party frontend [RetroArch](https://www.retroarch.com/) under [buildbot.libretro.com](https://buildbot.libretro.com/nightly/). Cores from other sources can be found on the web and their respective communities.
+A collection of open-source cores is available for [download](https://buildbot.libretro.com/nightly/ "buildbot.libretro.com/nightly/") through the build artifacts of libretro's official frontend [RetroArch](https://www.retroarch.com/). Additionally, cores from alternative sources can be discovered on the internet within their respective communities.
 
 ## Compatibility
 
@@ -32,7 +30,7 @@ TODO
 
 ## Contributors
 
-* 29th-Day (Original Developer & Maintainer)
+* [29th-Day](https://github.com/29th-Day) (Original Developer & Maintainer)
 
 Information about [contributing](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 
