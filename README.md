@@ -14,6 +14,18 @@ RetroPy uses provided Shared Libraries (`.dll` / `.so`) and a pythonic wrapper, 
 
 TODO
 
-## Compatability
+### Cores
+
+A collection of cores can be downloaded from the build artifact of libretro's first-party frontend [RetroArch](https://www.retroarch.com/) under [buildbot.libretro.com](https://buildbot.libretro.com/nightly/). Cores from other sources can be found on the web and their respective communities.
+
+## Compatibility
 
 TODO
+
+## Contributors
+
+* 29th-Day (Original Developer & Maintainer)
+
+<br>
+
+*If you find RetroPy helpful, please consider mentioning it in your work or project to contribute to its maintenance.*
