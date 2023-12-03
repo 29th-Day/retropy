@@ -2,14 +2,13 @@
 name = "retropy"
 description = "Python frontend for libretro"
 version = "0.1.0"
-authors = [
-    { name = "29th-Day", email = "github.com/29th-Day" }
-]
+authors = [{ name = "29th-Day", email = "github.com/29th-Day" }]
 
-dependencies = [
-]
+dependencies = []
 
 [project.optional-dependencies]
-numpy = [
-    "numpy"
-]
+numpy = ["numpy"]
+
+pygame = ["numpy", "pygame"]
+
+dev = ["numpy", "matplotlib", "pygame"]
