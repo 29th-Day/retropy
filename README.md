@@ -26,6 +26,8 @@ TODO
 
 * 29th-Day (Original Developer & Maintainer)
 
+Information about [contributing](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md)
+
 <br>
 
 *If you find RetroPy helpful, please consider mentioning it in your work or project to contribute to its maintenance.*
