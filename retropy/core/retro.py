@@ -25,16 +25,17 @@ class RetroPy:
     pixel_format: PixelFormat
     core_variables: dict[bytes, dict[str, bytes | Tuple[bytes]]] = {}
     frontend_options: dict[str, Any] = {}
-    loaded: bool = False
     last_frame: Frame = None  # type can be looked up in frame_advance()
+    loaded: bool = False
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, numpy: bool = True) -> None:
         """Loads needed DLL and initializes the libretro core
 
         Args:
             path (str): Path to valid ROM file
         """
         self.path = path
+        self.numpy = numpy
 
         # Load core dll
         self.core = cdll.LoadLibrary(self.path)
@@ -407,7 +408,7 @@ class RetroPy:
             return
 
         self.last_frame = buffer_to_frame(
-            data, (height, width, pitch), self.pixel_format, numpy=False
+            data, (height, width, pitch), self.pixel_format, numpy=self.numpy
         )
 
     def audio_sample(self, left: int, right: int) -> None:
