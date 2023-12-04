@@ -9,7 +9,7 @@ except ImportError:
     # np = None
     pass
 
-from ..core.framebuffer import PIXEL_FORMAT
+from ..core.renderer.framebuffer import PixelFormat
 
 Frame = np.ndarray | List[List[Tuple[int, int, int]]]
 
@@ -17,7 +17,7 @@ Frame = np.ndarray | List[List[Tuple[int, int, int]]]
 def buffer_to_frame(
     data: c_void_p,
     shape: Tuple[int, int, int],
-    format: PIXEL_FORMAT,
+    format: PixelFormat,
     numpy: bool = True,
 ) -> Frame:
     """Convert void* array into usable python list / np array.
@@ -30,7 +30,7 @@ def buffer_to_frame(
         format (PIXEL_FORMAT): color format for raw buffer
         numpy (bool, optional): If numpy should be used. Defaults to True.
     """
-    if format == PIXEL_FORMAT.XRGB8888:
+    if format == PixelFormat.XRGB8888:
         ptr = cast(data, POINTER(c_uint32))
         width_p = shape[2] // 4
     else:
@@ -54,7 +54,7 @@ def buffer_to_frame(
 
 
 def pixel_to_rgb(
-    pixel: int | np.ndarray, format: PIXEL_FORMAT
+    pixel: int | np.ndarray, format: PixelFormat
 ) -> np.ndarray | Tuple[int, int, int]:
     """Splits single pixel value into RGB channels
 
@@ -67,15 +67,15 @@ def pixel_to_rgb(
     # 0x3F = 0b00111111
     # 0xFF = 0b11111111
 
-    if format == PIXEL_FORMAT.RGB1555:
+    if format == PixelFormat.RGB1555:
         red = ((pixel >> 10) & 0x1F) << 3
         green = ((pixel >> 5) & 0x1F) << 3
         blue = (pixel & 0x1F) << 3
-    elif format == PIXEL_FORMAT.XRGB8888:
+    elif format == PixelFormat.XRGB8888:
         red = (pixel >> 16) & 0xFF
         green = (pixel >> 8) & 0xFF
         blue = pixel & 0xFF
-    elif format == PIXEL_FORMAT.RGB565:
+    elif format == PixelFormat.RGB565:
         red = ((pixel >> 11) & 0x1F) << 3
         green = ((pixel >> 5) & 0x3F) << 2
         blue = (pixel & 0x1F) << 3

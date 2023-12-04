@@ -2,13 +2,17 @@ from ctypes import *
 
 import logging
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Any
 
+from . import callbacks as cb
 from .renderer.framebuffer import PixelFormat
-from .callbacks import 
+from .os.localization import Region
+from .os.system import SystemInfo, SystemAvInfo
+from .game import GameInfo
+from .environment import EnvironmentCommand, CoreVariable
+from .device import InputDescriptor, Device, Joypad
 
-
-# from ..utils.exceptions import *
+from ..utils.exceptions import UnkownEnvironmentCommand
 from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
 
@@ -19,7 +23,8 @@ class RetroPy:
     """Python(ic) frontend for libretro"""
 
     pixel_format: PixelFormat
-    variables: dict[bytes, dict[str, bytes | Tuple[bytes]]] = {}
+    core_variables: dict[bytes, dict[str, bytes | Tuple[bytes]]] = {}
+    frontend_options: dict[str, Any] = {}
     loaded: bool = False
     last_frame: Frame = None  # type can be looked up in frame_advance()
 
@@ -35,12 +40,12 @@ class RetroPy:
         self.core = cdll.LoadLibrary(self.path)
 
         # Create callback objects (and keep them in scope)
-        self.__cb_env = retro_environment_t(self.environment)
-        self.__cb_video = retro_video_refresh_t(self.video_refresh)
-        self.__cb_audio = retro_audio_sample_t(self.audio_sample)
-        self.__cb_audio_batch = retro_audio_sample_batch_t(self.audio_sample_batch)
-        self.__cb_input_poll = retro_input_poll_t(self.input_poll)
-        self.__cb_input_state = retro_input_state_t(self.input_state)
+        self.__cb_env = cb.environment_t(self.environment)
+        self.__cb_video = cb.video_refresh_t(self.video_refresh)
+        self.__cb_audio = cb.audio_sample_t(self.audio_sample)
+        self.__cb_audio_batch = cb.audio_sample_batch_t(self.audio_sample_batch)
+        self.__cb_input_poll = cb.input_poll_t(self.input_poll)
+        self.__cb_input_state = cb.input_state_t(self.input_state)
 
         # Register callbacks
         self.core.retro_set_environment(self.__cb_env)
@@ -117,7 +122,7 @@ class RetroPy:
         if not romPath.is_file():
             raise FileNotFoundError(f"`path` ({romPath}) is not a file")
 
-        game = retro_game_info(
+        game = GameInfo(
             path=str(romPath).encode("utf-8"), data=None, size=0, meta=b"metadata"
         )
 
@@ -202,7 +207,7 @@ class RetroPy:
         Returns:
             bool: Meaning depending on command
         """
-        cmd = RETRO_ENVIRONMENT(cmd)
+        cmd = EnvironmentCommand(cmd)
 
         # return False
 
@@ -214,10 +219,10 @@ class RetroPy:
                 i += 1
                 v = array[i]
 
-        if cmd == RETRO_ENVIRONMENT.UNKOWN:
+        if cmd == EnvironmentCommand.UNKOWN:
             raise UnkownEnvironmentCommand()
 
-        elif cmd == RETRO_ENVIRONMENT.GET_SYSTEM_DIRECTORY:
+        elif cmd == EnvironmentCommand.GET_SYSTEM_DIRECTORY:
             data = cast(data, POINTER(c_char_p)).contents
 
             system_directory = Path("./core_dir/").absolute()
@@ -228,17 +233,17 @@ class RetroPy:
 
             return True
 
-        elif cmd == RETRO_ENVIRONMENT.SET_PIXEL_FORMAT:
+        elif cmd == EnvironmentCommand.SET_PIXEL_FORMAT:
             data = cast(data, POINTER(c_int32)).contents.value
 
-            format = PIXEL_FORMAT(data)
+            format = PixelFormat(data)
             self.pixel_format = format
 
             logging.info(f"SET_PIXEL_FORMAT: {format}")
 
             return True
 
-        elif cmd == RETRO_ENVIRONMENT.SET_INPUT_DESCRIPTORS:
+        elif cmd == EnvironmentCommand.SET_INPUT_DESCRIPTORS:
             data = cast(data, POINTER(InputDescriptor))
 
             # print(value)
@@ -251,16 +256,16 @@ class RetroPy:
 
             return True
 
-        elif cmd == RETRO_ENVIRONMENT.GET_VARIABLE:
+        elif cmd == EnvironmentCommand.GET_VARIABLE:
             data = cast(data, POINTER(CoreVariable)).contents
 
-            data.value = self.variables[data.key]["value"]
+            data.value = self.core_variables[data.key]["value"]
 
             logging.debug(f"GET_VARIABLE: key={data.key}")
 
             return True
 
-        elif cmd == RETRO_ENVIRONMENT.SET_VARIABLES:
+        elif cmd == EnvironmentCommand.SET_VARIABLES:
             data = cast(data, POINTER(CoreVariable))
 
             # variables = {}
@@ -271,7 +276,11 @@ class RetroPy:
                 valid = tuple(rest.split(b"|"))
                 data = valid[0]
 
-                self.variables[var.key] = {"value": data, "valid": valid, "desc": desc}
+                self.core_variables[var.key] = {
+                    "value": data,
+                    "valid": valid,
+                    "desc": desc,
+                }
 
             # print(self.variables)
 
@@ -279,63 +288,63 @@ class RetroPy:
 
             return True
 
-        elif cmd == RETRO_ENVIRONMENT.GET_VARIABLE_UPDATE:
+        elif cmd == EnvironmentCommand.GET_VARIABLE_UPDATE:
             data = cast(data, POINTER(c_bool)).contents.value
 
             logging.debug(f"GET_VARIABLE_UPDATE: {data}")
 
             return False
 
-        elif cmd == RETRO_ENVIRONMENT.GET_CAMERA_INTERFACE:
-            return False
+        # elif cmd == EnvironmentCommand.GET_CAMERA_INTERFACE:
+        #     return False
 
-            data = cast(data, POINTER(CameraCallback)).contents
+        #     data = cast(data, POINTER(CameraCallback)).contents
 
-            self.__cam = lambda *args: print("cam:", args)
+        #     self.__cam = lambda *args: print("cam:", args)
 
-            data.caps = 0  # raw buffer
-            data.width = 100
-            data.height = 100
-            data.start = retro_camera_start_t(self.__cam)
-            data.stop = retro_camera_stop_t(self.__cam)
-            data.frame_raw_framebuffer = retro_camera_frame_raw_framebuffer_t(
-                self.__cam
-            )
-            data.frame_opengl_texture = None
-            data.initialized = retro_camera_lifetime_status_t(self.__cam)
-            data.deinitialized = retro_camera_lifetime_status_t(self.__cam)
+        #     data.caps = 0  # raw buffer
+        #     data.width = 100
+        #     data.height = 100
+        #     data.start = retro_camera_start_t(self.__cam)
+        #     data.stop = retro_camera_stop_t(self.__cam)
+        #     data.frame_raw_framebuffer = retro_camera_frame_raw_framebuffer_t(
+        #         self.__cam
+        #     )
+        #     data.frame_opengl_texture = None
+        #     data.initialized = retro_camera_lifetime_status_t(self.__cam)
+        #     data.deinitialized = retro_camera_lifetime_status_t(self.__cam)
 
-            logging.debug("GET_CAMERA_INTERFACE")
+        #     logging.debug("GET_CAMERA_INTERFACE")
 
-            return True
+        #     return True
 
-        elif cmd == RETRO_ENVIRONMENT.GET_LOG_INTERFACE:
-            return False
+        # elif cmd == EnvironmentCommand.GET_LOG_INTERFACE:
+        #     return False
 
-            data = cast(data, POINTER(LogCallback)).contents
+        #     data = cast(data, POINTER(LogCallback)).contents
 
-            self.__log = lambda *args: print("log:", args)
+        #     self.__log = lambda *args: print("log:", args)
 
-            data.log = retro_log_printf_t(self.__log)
+        #     data.log = retro_log_printf_t(self.__log)
 
-            logging.debug("GET_LOG_INTERFACE")
+        #     logging.debug("GET_LOG_INTERFACE")
 
-            return True
+        #     return True
 
-        elif cmd == RETRO_ENVIRONMENT.SET_MEMORY_MAPS:
-            # data = cast(data, POINTER(retro_memory_map)).contents
-            # print(data.num_descriptors)
+        # elif cmd == EnvironmentCommand.SET_MEMORY_MAPS:
+        #     # data = cast(data, POINTER(retro_memory_map)).contents
+        #     # print(data.num_descriptors)
 
-            logging.debug("SET_MEMORY_MAPS")
+        #     logging.debug("SET_MEMORY_MAPS")
 
-            return True
+        #     return True
 
-        elif cmd == RETRO_ENVIRONMENT.SET_SUPPORT_ACHIEVEMENTS:
+        elif cmd == EnvironmentCommand.SET_SUPPORT_ACHIEVEMENTS:
             data = cast(data, POINTER(c_bool)).contents.value
             logging.info(f"SET_SUPPORT_ACHIEVEMENTS: {data}")
             return True
 
-        elif cmd == RETRO_ENVIRONMENT.GET_INPUT_BITMASKS:
+        elif cmd == EnvironmentCommand.GET_INPUT_BITMASKS:
             if data:
                 data = cast(data, POINTER(c_bool)).contents.value
                 ...
@@ -344,34 +353,35 @@ class RetroPy:
             logging.debug(f"GET_INPUT_BITMASKS: {data}")
             return False
 
-        elif cmd == RETRO_ENVIRONMENT.GET_CORE_OPTIONS_VERSION:
+        elif cmd == EnvironmentCommand.GET_CORE_OPTIONS_VERSION:
             data = cast(data, POINTER(c_uint)).contents.value
 
             logging.info(f"GET_CORE_OPTIONS_VERSION: {data}")
 
             return True  # accept Options Version
 
-        elif cmd == RETRO_ENVIRONMENT.SET_AUDIO_BUFFER_STATUS_CALLBACK:
-            return False
+        # elif cmd == EnvironmentCommand.SET_AUDIO_BUFFER_STATUS_CALLBACK:
+        #     return False
 
-            if data:
-                data = cast(data, POINTER(AudioBufferStatusCallback)).contents
+        #     if data:
+        #         data = cast(data, POINTER(AudioBufferStatusCallback)).contents
 
-                self.__audio_status = lambda *args: print("audio status:", args)
+        #         self.__audio_status = lambda *args: print("audio status:", args)
 
-                data.callback = retro_audio_buffer_status_callback_t(
-                    self.__audio_status
-                )
+        #         data.callback = retro_audio_buffer_status_callback_t(
+        #             self.__audio_status
+        #         )
 
-            logging.debug("SET_AUDIO_BUFFER_STATUS_CALLBACK")
+        #     logging.debug("SET_AUDIO_BUFFER_STATUS_CALLBACK")
 
-            return True
+        #     return True
 
-        elif cmd == RETRO_ENVIRONMENT.SET_MINIMUM_AUDIO_LATENCY:
+        elif cmd == EnvironmentCommand.SET_MINIMUM_AUDIO_LATENCY:
             data = cast(data, POINTER(c_uint)).contents.value
 
-            logging.debug(f"SET_MINIMUM_AUDIO_LATENCY: {data}")
+            self.frontend_options["min_audio_latency"] = data
 
+            logging.debug(f"SET_MINIMUM_AUDIO_LATENCY: {data}")
             return True
 
         else:

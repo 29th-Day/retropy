@@ -5,7 +5,7 @@ EXPERIMENTAL = 0x10000
 PRIVATE = 0x20000
 
 
-class RETRO_ENVIRONMENT(Enum):
+class EnvironmentCommand(Enum):
     """RETRO_ENVIRONMENT_"""
 
     UNKOWN = 0
