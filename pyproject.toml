@@ -1,8 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "retropy"
 description = "Python frontend for libretro"
 version = "0.1.0"
 authors = [{ name = "29th-Day", email = "github.com/29th-Day" }]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"                                       # ?
+
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Games/Entertainment",
+    "Typing :: Typed",
+]
 
 dependencies = []
 
@@ -12,3 +30,7 @@ numpy = ["numpy"]
 pygame = ["numpy", "pygame"]
 
 dev = ["numpy", "matplotlib", "pygame"]
+
+
+[project.urls]
+Homepage = "https://github.com/29th-Day/retropy"
