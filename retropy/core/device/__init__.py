@@ -1,5 +1,5 @@
 from ctypes import *
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class Device(Enum):
@@ -14,7 +14,11 @@ class Device(Enum):
     # POINTER = 6
 
 
-class Joypad(Enum):
+class Action:
+    pass
+
+
+class Joypad(IntEnum):
     """RETRO_DEVICE_ID_JOYPAD_"""
 
     B = 0
@@ -36,7 +40,7 @@ class Joypad(Enum):
     MASK = 256
 
 
-class Mouse(Enum):
+class Mouse(IntEnum):
     """RETRO_DEVICE_ID_"""
 
     X = 0

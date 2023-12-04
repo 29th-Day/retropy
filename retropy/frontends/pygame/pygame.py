@@ -1,5 +1,3 @@
-from ctypes import POINTER, c_void_p, c_uint32, c_size_t, c_int16, c_uint16
-
 from ...core.retro import RetroPy
 from ...core.device import Device, Joypad
 
@@ -12,7 +10,7 @@ class RetroPyGame(RetroPy):
     # options: PyGameOption
     running: bool = True
 
-    keybindings = {
+    keybindings: dict[int, tuple[int, int]] = {
         pygame.K_w: (0, Joypad.UP),
         pygame.K_a: (0, Joypad.LEFT),
         pygame.K_s: (0, Joypad.DOWN),
@@ -60,19 +58,22 @@ class RetroPyGame(RetroPy):
 
     def input_poll(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or (
+                event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+            ):
                 self.running = False
+                continue
+
             elif event.type == pygame.KEYDOWN and event.key in self.keybindings:
                 port, button = self.keybindings[event.key]
-                self.players[port].actions[Device.JOYPAD][button] = 1
+                self.players[port][Device.JOYPAD][button] = 1
             elif event.type == pygame.KEYUP and event.key in self.keybindings:
                 port, button = self.keybindings[event.key]
-                self.players[port].actions[Device.JOYPAD][button] = 0
-                # self.inputs.pop(button, None) # None = safety check (most possibly useless)
+                self.players[port][Device.JOYPAD][button] = 0
 
     def input_state(self, port: int, device: int, index: int, id: int) -> int:
         # return self.players[port].actions[Device(device)][id]
 
-        print(self.players[port].actions[Device(device)])
+        # print(self.players[port][Device(device)])
 
-        return 0
+        return self.players[port][Device(device)][id]

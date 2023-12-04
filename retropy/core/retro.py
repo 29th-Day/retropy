@@ -16,7 +16,7 @@ from ..utils.exceptions import UnkownEnvironmentCommand
 from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)-7s - %(message)s")
 
 
 class RetroPy:
@@ -39,6 +39,8 @@ class RetroPy:
 
         # Load core dll
         self.core = cdll.LoadLibrary(self.path)
+
+        logging.debug(f"Loading core: '{path}'")
 
         # Create callback objects (and keep them in scope)
         self.__cb_env = cb.environment_t(self.environment)
@@ -250,7 +252,13 @@ class RetroPy:
             # print(value)
             input: InputDescriptor
             for input in foreach(data, lambda v: v.description):
-                # print(input.description)
+                print(
+                    input.port,
+                    Device(input.device),
+                    input.index,
+                    input.id,
+                    input.description,
+                )
                 ...
 
             logging.debug("SET_INPUT_DESCRIPTORS")
@@ -320,13 +328,15 @@ class RetroPy:
         #     return True
 
         # elif cmd == EnvironmentCommand.GET_LOG_INTERFACE:
-        #     return False
+        #     # return False
+
+        #     from .log import LogCallback, log_printf_t
 
         #     data = cast(data, POINTER(LogCallback)).contents
 
         #     self.__log = lambda *args: print("log:", args)
 
-        #     data.log = retro_log_printf_t(self.__log)
+        #     data.log = log_printf_t(self.__log)
 
         #     logging.debug("GET_LOG_INTERFACE")
 
@@ -349,7 +359,7 @@ class RetroPy:
             if data:
                 data = cast(data, POINTER(c_bool)).contents.value
                 ...
-                return True
+                # return True
 
             logging.debug(f"GET_INPUT_BITMASKS: {data}")
             return False
@@ -452,10 +462,9 @@ class RetroPy:
         """
         logging.debug("Callback: input_state")
 
-        device = Device(device)
-        id = Joypad(id)
-
-        print(f"{port=}, {device}, {id}")
+        # device = Device(device)
+        # id = Joypad(id)
+        # print(f"{port=}, {device}, {id}")
 
         return 0
 

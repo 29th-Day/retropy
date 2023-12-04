@@ -1,7 +1,7 @@
 from ctypes import *
 
 from retropy import RetroPy
-from env import CORE, GAMES
+from env import CORES, GAMES
 
 
 def test1():
@@ -32,17 +32,24 @@ def test2():
     print(v)
 
 
-def main():
-    core = RetroPy(CORE)
+def test3():
+    libc = cdll.msvcrt
+    libc.printf(b"Okay")
 
-    success = core.load(GAMES[0])
+
+def main():
+    system = "N64"
+
+    core = RetroPy(CORES[system])
+
+    success = core.load(GAMES[system])
 
     if not success:
         raise RuntimeError()
 
     # core.unload()
 
-    for _ in range(100):
+    for _ in range(1):
         core.frame_advance()
 
     save = core.saveState()
@@ -61,9 +68,9 @@ def main():
 def pygame():
     from retropy.frontends import RetroPyGame
 
-    core = RetroPyGame(CORE, 2, 1)
+    core = RetroPyGame(CORES["GBA"], 1, 30)
 
-    success = core.load(GAMES[0])
+    success = core.load(GAMES["GBA"])
 
     core.run()
 
@@ -71,5 +78,6 @@ def pygame():
 if __name__ == "__main__":
     # test1()
     # test2()
-    # main()
-    pygame()
+    # test3()
+    main()
+    # pygame()

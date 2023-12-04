@@ -1,4 +1,5 @@
 from enum import IntFlag
+from typing import Any
 
 from ..core.device import Device
 
@@ -21,9 +22,13 @@ class InputBitmask(IntFlag):
 
 
 class PlayerInput:
-    actions: dict[Device, dict[int, int]]
+    joypad: list[int] = [0] * 17
+    mouse: list[int] = [0] * 11
 
-    def __init__(self) -> None:
-        self.actions = {Device.JOYPAD: {}, Device.KEYBOARD: {}, Device.MOUSE: {}}
-
-        # make it lists
+    def __getitem__(self, __device: Device) -> Any:
+        if __device == Device.JOYPAD:
+            return self.joypad
+        elif __device == Device.MOUSE:
+            return self.mouse
+        else:
+            raise NotImplementedError()

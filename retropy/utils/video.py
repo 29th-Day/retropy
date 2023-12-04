@@ -80,6 +80,6 @@ def pixel_to_rgb(
         green = ((pixel >> 5) & 0x3F) << 2
         blue = (pixel & 0x1F) << 3
     else:
-        raise NotImplementedError()
+        raise NotImplementedError(format)
 
     return (red, green, blue)
