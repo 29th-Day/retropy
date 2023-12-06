@@ -12,7 +12,7 @@ class LogLevel(Enum):
     ERROR = 3
 
 
-log_printf_t = CFUNCTYPE(None, c_int32, c_char_p)
+log_printf_t = CFUNCTYPE(None, c_int32, c_char_p) # , c_char_p, c_char_p
 """retro_log_printf_t"""
 
 

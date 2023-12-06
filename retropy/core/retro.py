@@ -11,6 +11,10 @@ from .os.system import SystemInfo, SystemAvInfo
 from .game import GameInfo
 from .environment import EnvironmentCommand, CoreVariable
 from .device import InputDescriptor, Device, Joypad
+from .device.controller import ControllerInfo
+from .log import LogCallback, LogLevel, log_printf_t
+from .renderer.hw import HWRenderCallback, HwContextType
+
 
 from ..utils.exceptions import UnkownEnvironmentCommand
 from ..utils.savestate import Savestate
@@ -106,6 +110,17 @@ class RetroPy:
     # endregion
 
     # region Functions
+
+    def set_player_controller(self, player: int, device: Device):
+        """Sets the input device of a player. All player devices default to Device.JOYPAD.
+
+        Args:
+            player (int): player id
+            device (Device): set as input device
+        """
+        self.core.retro_set_controller_port_device(player, device)
+        logging.debug("Set player controller type")
+        
 
     def load(self, path: str) -> bool:
         """Load a game from ROM
@@ -221,6 +236,30 @@ class RetroPy:
         if cmd == EnvironmentCommand.UNKNOWN:
             logging.warning(f"{cmd}: cmd={__i} (0x{__i:X}): Consider reading the documentation / source code of the current core to support custom environment commands")
 
+        elif cmd == EnvironmentCommand.SET_ROTATION:
+            logging.debug("SET_ROTATION (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_OVERSCAN:
+            logging.debug("GET_OVERSCAN (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_CAN_DUPE:
+            logging.debug("GET_CAN_DUPE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_MESSAGE:
+            logging.debug("SET_MESSAGE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SHUTDOWN:
+            logging.debug("SHUTDOWN (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_PERFORMANCE_LEVEL:
+            logging.debug("SET_PERFORMANCE_LEVEL (not implemented)")
+            return False
+
         elif cmd == EnvironmentCommand.GET_SYSTEM_DIRECTORY:
             data = cast(data, POINTER(c_char_p)).contents
 
@@ -261,6 +300,24 @@ class RetroPy:
 
             return True
 
+        elif cmd == EnvironmentCommand.SET_KEYBOARD_CALLBACK:
+            logging.debug("SET_KEYBOARD_CALLBACK (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_DISK_CONTROL_INTERFACE:
+            logging.debug("SET_DISK_CONTROL_INTERFACE (not implemented)")
+            return False
+
+        elif cmd == EnvironmentCommand.SET_HW_RENDER:
+            # No hardware acceleration (for now?)
+            
+            # data = cast(data, POINTER(HWRenderCallback)).contents
+            # print(HwContextType(data.context_type))
+            
+            logging.debug("SET_HW_RENDER (not implemented)")
+            
+            return False
+
         elif cmd == EnvironmentCommand.GET_VARIABLE:
             data = cast(data, POINTER(CoreVariable)).contents
 
@@ -300,60 +357,183 @@ class RetroPy:
 
             return False
 
-        # region Unsupport for now
+        elif cmd == EnvironmentCommand.SET_SUPPORT_NO_GAME:
+            logging.debug("SET_SUPPORT_NO_GAME (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_LIBRETRO_PATH:
+            logging.debug("GET_LIBRETRO_PATH (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_FRAME_TIME_CALLBACK:
+            logging.debug("SET_FRAME_TIME_CALLBACK (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_AUDIO_CALLBACK:
+            logging.debug("SET_AUDIO_CALLBACK (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_RUMBLE_INTERFACE:
+            logging.debug("GET_RUMBLE_INTERFACE (not implemented)")
+            return False
 
-        # elif cmd == EnvironmentCommand.GET_CAMERA_INTERFACE:
-        #     return False
+        elif cmd == EnvironmentCommand.GET_INPUT_DEVICE_CAPABILITIES:
+            logging.debug("GET_INPUT_DEVICE_CAPABILITIES (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_SENSOR_INTERFACE:
+            logging.debug("GET_SENSOR_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_CAMERA_INTERFACE:
+            logging.debug("GET_CAMERA_INTERFACE (not implemented)")
+            return False
 
-        #     data = cast(data, POINTER(CameraCallback)).contents
+            data = cast(data, POINTER(CameraCallback)).contents
 
-        #     self.__cam = lambda *args: print("cam:", args)
+            self.__cam = lambda *args: print("cam:", args)
 
-        #     data.caps = 0  # raw buffer
-        #     data.width = 100
-        #     data.height = 100
-        #     data.start = retro_camera_start_t(self.__cam)
-        #     data.stop = retro_camera_stop_t(self.__cam)
-        #     data.frame_raw_framebuffer = retro_camera_frame_raw_framebuffer_t(
-        #         self.__cam
-        #     )
-        #     data.frame_opengl_texture = None
-        #     data.initialized = retro_camera_lifetime_status_t(self.__cam)
-        #     data.deinitialized = retro_camera_lifetime_status_t(self.__cam)
+            data.caps = 0  # raw buffer
+            data.width = 100
+            data.height = 100
+            data.start = retro_camera_start_t(self.__cam)
+            data.stop = retro_camera_stop_t(self.__cam)
+            data.frame_raw_framebuffer = retro_camera_frame_raw_framebuffer_t(
+                self.__cam
+            )
+            data.frame_opengl_texture = None
+            data.initialized = retro_camera_lifetime_status_t(self.__cam)
+            data.deinitialized = retro_camera_lifetime_status_t(self.__cam)
 
-        #     logging.debug("GET_CAMERA_INTERFACE")
+            logging.debug("GET_CAMERA_INTERFACE")
 
-        #     return True
+            return True
 
-        # elif cmd == EnvironmentCommand.GET_LOG_INTERFACE:
-        #     # return False
+        elif cmd == EnvironmentCommand.GET_LOG_INTERFACE:
+            # ctypes does not support variadic functions
 
-        #     from .log import LogCallback, log_printf_t
+            # data = cast(data, POINTER(LogCallback)).contents
+            # self.__log = log_printf_t(lambda *args: print("log:", args))
+            # data.log = self.__log
 
-        #     data = cast(data, POINTER(LogCallback)).contents
+            logging.debug("GET_LOG_INTERFACE (not implemented)")
 
-        #     self.__log = lambda *args: print("log:", args)
+            return False
 
-        #     data.log = log_printf_t(self.__log)
+        elif cmd == EnvironmentCommand.GET_PERF_INTERFACE:
+            logging.debug("GET_PERF_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_LOCATION_INTERFACE:
+            logging.debug("GET_LOCATION_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_CORE_ASSETS_DIRECTORY:
+            logging.debug("GET_CORE_ASSETS_DIRECTORY (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_SAVE_DIRECTORY:
+            logging.debug("GET_SAVE_DIRECTORY (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_SYSTEM_AV_INFO:
+            logging.debug("SET_SYSTEM_AV_INFO (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_PROC_ADDRESS_CALLBACK:
+            logging.debug("SET_PROC_ADDRESS_CALLBACK (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_SUBSYSTEM_INFO:
+            logging.debug("SET_SUBSYSTEM_INFO (not implemented)")
+            return False
 
-        #     logging.debug("GET_LOG_INTERFACE")
+        elif cmd == EnvironmentCommand.SET_CONTROLLER_INFO:
+            data = cast(data, POINTER(ControllerInfo)).contents
+            
+            accepted_controller = []
+            
+            for i in range(data.num_types):
+                info = data.types[i]
+                accepted_controller.append((info.id, info.desc))
+            
+            # print(accepted_controller)
+            
+            logging.debug("SET_CONTROLLER_INFO")
+            
+            return True
 
-        #     return True
+        elif cmd == EnvironmentCommand.SET_MEMORY_MAPS:
+            # data = cast(data, POINTER(retro_memory_map)).contents
+            # print(data.num_descriptors)
 
-        # elif cmd == EnvironmentCommand.SET_MEMORY_MAPS:
-        #     # data = cast(data, POINTER(retro_memory_map)).contents
-        #     # print(data.num_descriptors)
+            logging.debug("SET_MEMORY_MAPS (not implemented)")
 
-        #     logging.debug("SET_MEMORY_MAPS")
+            return False
 
-        #     return True
+        # All are just here for easier navigation during development.
+        # Some may never be used/not supported at all, so they get removed later on.
 
-        # endregion
+        elif cmd == EnvironmentCommand.SET_GEOMETRY:
+            logging.debug("SET_GEOMETRY (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_USERNAME:
+            logging.debug("GET_USERNAME (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_LANGUAGE:
+            logging.debug("GET_LANGUAGE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_CURRENT_SOFTWARE_FRAMEBUFFER:
+            logging.debug("GET_CURRENT_SOFTWARE_FRAMEBUFFER (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_HW_RENDER_INTERFACE:
+            logging.debug("GET_HW_RENDER_INTERFACE (not implemented)")
+            return False
 
         elif cmd == EnvironmentCommand.SET_SUPPORT_ACHIEVEMENTS:
             data = cast(data, POINTER(c_bool)).contents.value
             logging.info(f"SET_SUPPORT_ACHIEVEMENTS: {data}")
             return True
+
+        elif cmd == EnvironmentCommand.SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE:
+            logging.debug("SET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_SERIALIZATION_QUIRKS:
+            logging.debug("SET_SERIALIZATION_QUIRKS (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_HW_SHARED_CONTEXT:
+            logging.debug("SET_HW_SHARED_CONTEXT (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_VFS_INTERFACE:
+            logging.debug("GET_VFS_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_LED_INTERFACE:
+            logging.debug("GET_LED_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_AUDIO_VIDEO_ENABLE:
+            logging.debug("GET_AUDIO_VIDEO_ENABLE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_MIDI_INTERFACE:
+            logging.debug("GET_MIDI_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_FASTFORWARDING:
+            logging.debug("GET_FASTFORWARDING (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_TARGET_REFRESH_RATE:
+            logging.debug("GET_TARGET_REFRESH_RATE (not implemented)")
+            return False
 
         elif cmd == EnvironmentCommand.GET_INPUT_BITMASKS:
             if data:
@@ -371,25 +551,58 @@ class RetroPy:
 
             return True  # accept Options Version
 
-        # region Unsupport for now
+        elif cmd == EnvironmentCommand.SET_CORE_OPTIONS:
+            logging.debug("SET_CORE_OPTIONS (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_CORE_OPTIONS_INTL:
+            logging.debug("SET_CORE_OPTIONS_INTL (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_CORE_OPTIONS_DISPLAY:
+            logging.debug("SET_CORE_OPTIONS_DISPLAY (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_PREFERRED_HW_RENDER:
+            logging.debug("GET_PREFERRED_HW_RENDER (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_DISK_CONTROL_INTERFACE_VERSION:
+            logging.debug("GET_DISK_CONTROL_INTERFACE_VERSION (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_DISK_CONTROL_EXT_INTERFACE:
+            logging.debug("SET_DISK_CONTROL_EXT_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_MESSAGE_INTERFACE_VERSION:
+            logging.debug("GET_MESSAGE_INTERFACE_VERSION (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_MESSAGE_EXT:
+            logging.debug("SET_MESSAGE_EXT (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_INPUT_MAX_USERS:
+            logging.debug("GET_INPUT_MAX_USERS (not implemented)")
+            return False
 
-        # elif cmd == EnvironmentCommand.SET_AUDIO_BUFFER_STATUS_CALLBACK:
-        #     return False
+        elif cmd == EnvironmentCommand.SET_AUDIO_BUFFER_STATUS_CALLBACK:
+            logging.debug("SET_AUDIO_BUFFER_STATUS_CALLBACK")
+            return False
 
-        #     if data:
-        #         data = cast(data, POINTER(AudioBufferStatusCallback)).contents
+            if data:
+                data = cast(data, POINTER(AudioBufferStatusCallback)).contents
 
-        #         self.__audio_status = lambda *args: print("audio status:", args)
+                self.__audio_status = lambda *args: print("audio status:", args)
 
-        #         data.callback = retro_audio_buffer_status_callback_t(
-        #             self.__audio_status
-        #         )
+                data.callback = retro_audio_buffer_status_callback_t(
+                    self.__audio_status
+                )
 
-        #     logging.debug("SET_AUDIO_BUFFER_STATUS_CALLBACK")
+            logging.debug("SET_AUDIO_BUFFER_STATUS_CALLBACK")
 
-        #     return True
-
-        # endregion
+            return True
 
         elif cmd == EnvironmentCommand.SET_MINIMUM_AUDIO_LATENCY:
             data = cast(data, POINTER(c_uint)).contents.value
@@ -398,6 +611,62 @@ class RetroPy:
 
             logging.debug(f"SET_MINIMUM_AUDIO_LATENCY: {data}")
             return True
+
+        elif cmd == EnvironmentCommand.SET_FASTFORWARDING_OVERRIDE:
+            logging.debug("SET_FASTFORWARDING_OVERRIDE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_CONTENT_INFO_OVERRIDE:
+            logging.debug("SET_CONTENT_INFO_OVERRIDE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_GAME_INFO_EXT:
+            logging.debug("GET_GAME_INFO_EXT (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_CORE_OPTIONS_V2:
+            logging.debug("SET_CORE_OPTIONS_V2 (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_CORE_OPTIONS_V2_INTL:
+            logging.debug("SET_CORE_OPTIONS_V2_INTL (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_CORE_OPTIONS_UPDATE_DISPLAY_CALLBACK:
+            logging.debug("SET_CORE_OPTIONS_UPDATE_DISPLAY_CALLBACK (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_VARIABLE:
+            logging.debug("SET_VARIABLE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_THROTTLE_STATE:
+            logging.debug("GET_THROTTLE_STATE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_SAVESTATE_CONTEXT:
+            logging.debug("GET_SAVESTATE_CONTEXT (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_SUPPORT:
+            logging.debug("GET_HW_RENDER_CONTEXT_NEGOTIATION_INTERFACE_SUPPORT (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_JIT_CAPABLE:
+            logging.debug("GET_JIT_CAPABLE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_MICROPHONE_INTERFACE:
+            logging.debug("GET_MICROPHONE_INTERFACE (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.GET_DEVICE_POWER:
+            logging.debug("GET_DEVICE_POWER (not implemented)")
+            return False
+        
+        elif cmd == EnvironmentCommand.SET_NETPACKET_INTERFACE:
+            logging.debug("SET_NETPACKET_INTERFACE (not implemented)")
+            return False
 
         else:
             logging.warning(f"{cmd} (not implemeted)")

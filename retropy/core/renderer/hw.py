@@ -17,7 +17,7 @@ hw_get_proc_address_t = CFUNCTYPE(proc_address_t, c_char_p)
 """retro_hw_get_proc_address_t"""
 
 
-class HW_CONTEXT_TYPE(Enum):
+class HwContextType(Enum):
     """retro_hw_context_type"""
 
     NONE = 0

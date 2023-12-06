@@ -57,7 +57,7 @@ def main():
     success = core.load(GAMES[system])
 
     if not success:
-        raise RuntimeError()
+        raise RuntimeError("load game")
 
     # core.unload()
 
@@ -67,14 +67,14 @@ def main():
     save = core.saveState()
 
     if not save:
-        raise RuntimeError()
+        raise RuntimeError("save state")
 
     core.reset()
 
     success = core.loadState(save)
 
     if not success:
-        raise RuntimeError()
+        raise RuntimeError("load state")
 
 
 def pygame():
