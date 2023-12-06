@@ -204,15 +204,11 @@ class RetroPy:
 
         `data` has no type so it automatically recieves type when cast
 
-        Raises:
-            UnkownEnvironmentCommand: `cmd` invalid
-
         Returns:
-            bool: Meaning depending on command
+            bool: Meaning depending on command. Return `False` to commonly mean a command is not supported.
         """
+        __i = cmd
         cmd = EnvironmentCommand(cmd)
-
-        # return False
 
         def foreach(array, cond):
             i = 0
@@ -222,8 +218,8 @@ class RetroPy:
                 i += 1
                 v = array[i]
 
-        if cmd == EnvironmentCommand.UNKOWN:
-            raise UnkownEnvironmentCommand()
+        if cmd == EnvironmentCommand.UNKNOWN:
+            logging.warning(f"{cmd}: cmd={__i} (0x{__i:X}): Consider reading the documentation / source code of the current core to support custom environment commands")
 
         elif cmd == EnvironmentCommand.GET_SYSTEM_DIRECTORY:
             data = cast(data, POINTER(c_char_p)).contents
@@ -304,6 +300,8 @@ class RetroPy:
 
             return False
 
+        # region Unsupport for now
+
         # elif cmd == EnvironmentCommand.GET_CAMERA_INTERFACE:
         #     return False
 
@@ -350,6 +348,8 @@ class RetroPy:
 
         #     return True
 
+        # endregion
+
         elif cmd == EnvironmentCommand.SET_SUPPORT_ACHIEVEMENTS:
             data = cast(data, POINTER(c_bool)).contents.value
             logging.info(f"SET_SUPPORT_ACHIEVEMENTS: {data}")
@@ -371,6 +371,8 @@ class RetroPy:
 
             return True  # accept Options Version
 
+        # region Unsupport for now
+
         # elif cmd == EnvironmentCommand.SET_AUDIO_BUFFER_STATUS_CALLBACK:
         #     return False
 
@@ -386,6 +388,8 @@ class RetroPy:
         #     logging.debug("SET_AUDIO_BUFFER_STATUS_CALLBACK")
 
         #     return True
+
+        # endregion
 
         elif cmd == EnvironmentCommand.SET_MINIMUM_AUDIO_LATENCY:
             data = cast(data, POINTER(c_uint)).contents.value

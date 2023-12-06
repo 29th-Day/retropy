@@ -8,7 +8,8 @@ PRIVATE = 0x20000
 class EnvironmentCommand(Enum):
     """RETRO_ENVIRONMENT_"""
 
-    UNKOWN = 0
+    UNKNOWN = 0
+    """Some cores may send custom commands. In case they are not implemented, UNKNOWN will be returned"""
     SET_ROTATION = 1
     GET_OVERSCAN = 2
     GET_CAN_DUPE = 3
@@ -86,6 +87,10 @@ class EnvironmentCommand(Enum):
     GET_DEVICE_POWER = 77 | EXPERIMENTAL
     SET_NETPACKET_INTERFACE = 78
 
+    @classmethod
+    def _missing_(cls, value):
+        """Returns following element if not present in enum"""
+        return cls.UNKNOWN
 
 class CoreVariable(Structure):
     """retro_variable"""

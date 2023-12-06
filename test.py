@@ -33,8 +33,20 @@ def test2():
 
 
 def test3():
-    libc = cdll.msvcrt
-    libc.printf(b"Okay")
+    from enum import Enum
+    
+    class DefaultEnum(Enum):
+        UNKNOWN = 0
+        A = 1
+        B = 2
+        C = 3
+        
+        @classmethod
+        def _missing_(cls, value):
+            return cls.UNKNOWN
+        
+    print(DefaultEnum(1))
+    print(DefaultEnum(123123))
 
 
 def main():
@@ -68,9 +80,11 @@ def main():
 def pygame():
     from retropy.frontends import RetroPyGame
 
-    core = RetroPyGame(CORES["GBA"], 1, 30)
+    system = 'N64'
 
-    success = core.load(GAMES["GBA"])
+    core = RetroPyGame(CORES[system], 1, 30)
+
+    success = core.load(GAMES[system])
 
     core.run()
 
