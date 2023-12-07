@@ -2,7 +2,7 @@
 
 ## Community Guidelines
 
-Be welcoming. Approach everything with good intent.
+Be welcoming. Approach everything with good intent. Misbehaviour will not be tolerated.
 
 ## Piracy & ROM Sharing
 

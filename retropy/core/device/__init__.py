@@ -2,21 +2,16 @@ from ctypes import *
 from enum import Enum, IntEnum
 
 
-class Device(IntEnum):
+class Device(Enum):
     """RETRO_DEVICE_"""
 
     NONE = 0
     JOYPAD = 1
-    MOUSE = 2
-    KEYBOARD = 3
+    # MOUSE = 2
+    # KEYBOARD = 3
     # LIGHTGUN = 4
-    # ANALOG = 5
+    ANALOG = 5
     # POINTER = 6
-
-
-class Action:
-    pass
-
 
 class Joypad(IntEnum):
     """RETRO_DEVICE_ID_JOYPAD_"""
@@ -37,11 +32,11 @@ class Joypad(IntEnum):
     R2 = 13
     L3 = 14
     R3 = 15
-    MASK = 256
+    # MASK = 256
 
-
+"""
 class Mouse(IntEnum):
-    """RETRO_DEVICE_ID_"""
+    # RETRO_DEVICE_ID_
 
     X = 0
     Y = 1
@@ -54,7 +49,15 @@ class Mouse(IntEnum):
     HORIZ_WHEELDOWN = 8
     BUTTON_4 = 9
     BUTTON_5 = 10
+"""
 
+class Analog(IntEnum):
+    """RETRO_DEVICE_INDEX_ANALOG_ & RETRO_DEVICE_ID_ANALOG_"""
+    IDX_LEFT = 0
+    IDX_RIGHT = 1
+    IDX_BUTTON = 2
+    X = 0
+    Y = 1
 
 class InputDescriptor(Structure):
     """retro_input_descriptor"""

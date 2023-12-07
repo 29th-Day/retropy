@@ -48,9 +48,13 @@ def test3():
     print(DefaultEnum(1))
     print(DefaultEnum(123123))
 
+def test4():
+    from retropy.utils.input import Joypad
+    
+    print(vars(Joypad()))
 
 def main():
-    system = "N64"
+    system = "SNES"
 
     core = RetroPy(CORES[system])
 
@@ -80,9 +84,9 @@ def main():
 def pygame():
     from retropy.frontends import RetroPyGame
 
-    system = 'N64'
+    system = 'SNES'
 
-    core = RetroPyGame(CORES[system], 1, 30)
+    core = RetroPyGame(CORES[system], 3, 60)
 
     success = core.load(GAMES[system])
 
@@ -93,5 +97,6 @@ if __name__ == "__main__":
     # test1()
     # test2()
     # test3()
+    # test4()
     main()
     # pygame()

@@ -18,13 +18,13 @@ TODO
 
 ### Conda
 
-Currently, there is no official support for Conda.
+There is no official support for Conda.
 
 ### Cores
 
 A collection of open-source cores is available for [download](https://buildbot.libretro.com/nightly/ "buildbot.libretro.com/nightly/") through the build artifacts of libretro's official frontend [RetroArch](https://www.retroarch.com/). Additionally, cores from alternative sources can be discovered on the internet within their respective communities.
 
-## Compatibility
+## Compatibility / Dependencies
 
 TODO
 
@@ -34,6 +34,6 @@ TODO
 
 Information about [contributing](.github/CONTRIBUTING.md) and our [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 
-<br>
+---
 
-*If you find RetroPy helpful, please consider mentioning it in your work or project to contribute to its maintenance.*
+*If you find RetroPy helpful, please consider mentioning it in your work or project.*

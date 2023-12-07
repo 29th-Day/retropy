@@ -1,7 +1,5 @@
 from ...core.retro import RetroPy
-from ...core.device import Device, Joypad
-
-from ...utils.input import PlayerInput
+from ...core.device import Joypad
 
 import pygame
 
@@ -11,14 +9,16 @@ class RetroPyGame(RetroPy):
     running: bool = True
 
     keybindings: dict[int, tuple[int, int]] = {
-        pygame.K_w: (0, Joypad.UP),
-        pygame.K_a: (0, Joypad.LEFT),
-        pygame.K_s: (0, Joypad.DOWN),
-        pygame.K_d: (0, Joypad.RIGHT),
-        pygame.K_i: (0, Joypad.A),
-        pygame.K_l: (0, Joypad.B),
-        pygame.K_j: (0, Joypad.SELECT),
-        pygame.K_k: (0, Joypad.START),
+        pygame.K_w: (0, 0, Joypad.UP),
+        pygame.K_a: (0, 0, Joypad.LEFT),
+        pygame.K_s: (0, 0, Joypad.DOWN),
+        pygame.K_d: (0, 0, Joypad.RIGHT),
+        pygame.K_l: (0, 0, Joypad.A),
+        pygame.K_k: (0, 0, Joypad.B),
+        pygame.K_i: (0, 0, Joypad.X),
+        pygame.K_j: (0, 0, Joypad.Y),
+        pygame.K_v: (0, 0, Joypad.SELECT),
+        pygame.K_b: (0, 0, Joypad.START),
     }
 
     def __init__(
@@ -28,8 +28,6 @@ class RetroPyGame(RetroPy):
 
         self.scaling = scaling
         self.fps = fps
-
-        self.players = [PlayerInput()]
 
         pygame.init()
         self.clock = pygame.time.Clock()
@@ -65,15 +63,8 @@ class RetroPyGame(RetroPy):
                 continue
 
             elif event.type == pygame.KEYDOWN and event.key in self.keybindings:
-                port, button = self.keybindings[event.key]
-                self.players[port][Device.JOYPAD][button] = 1
+                port, index, button = self.keybindings[event.key]
+                self.controllers[port].set_state(index, button, 1)
             elif event.type == pygame.KEYUP and event.key in self.keybindings:
-                port, button = self.keybindings[event.key]
-                self.players[port][Device.JOYPAD][button] = 0
-
-    def input_state(self, port: int, device: int, index: int, id: int) -> int:
-        # return self.players[port].actions[Device(device)][id]
-
-        # print(self.players[port][Device(device)])
-
-        return self.players[port][Device(device)][id]
+                port, index, button = self.keybindings[event.key]
+                self.controllers[port].set_state(index, button, 0)

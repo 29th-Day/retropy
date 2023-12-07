@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 from ctypes import *
 
 import logging
 from pathlib import Path
-from typing import Tuple, Any
+from typing import Any, TypeVar, Callable, Sequence
 
 from . import callbacks as cb
 from .renderer.framebuffer import PixelFormat
@@ -10,25 +12,29 @@ from .os.localization import Region
 from .os.system import SystemInfo, SystemAvInfo
 from .game import GameInfo
 from .environment import EnvironmentCommand, CoreVariable
-from .device import InputDescriptor, Device, Joypad
+from .device import InputDescriptor, Device
 from .device.controller import ControllerInfo
-from .log import LogCallback, LogLevel, log_printf_t
-from .renderer.hw import HWRenderCallback, HwContextType
+from .performance import perf
 
 
-from ..utils.exceptions import UnkownEnvironmentCommand
 from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
+from ..utils.input import device_to_controller, Controller
 
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)-7s - %(message)s")
+T = TypeVar('T')
+
+from ctypes import _Pointer
+
+logging.basicConfig(level=logging.WARNING, format="%(levelname)-7s - %(message)s")
 
 
 class RetroPy:
     """Python(ic) frontend for libretro"""
 
     pixel_format: PixelFormat
-    core_variables: dict[bytes, dict[str, bytes | Tuple[bytes]]] = {}
+    core_variables: dict[bytes, dict[str, bytes | Sequence[bytes]]] = {}
     frontend_options: dict[str, Any] = {}
+    controllers: list[Controller] = []
     last_frame: Frame = None  # type can be looked up in frame_advance()
     loaded: bool = False
 
@@ -111,16 +117,19 @@ class RetroPy:
 
     # region Functions
 
-    def set_player_controller(self, player: int, device: Device):
-        """Sets the input device of a player. All player devices default to Device.JOYPAD.
+    # region Not implement. Most likely useless
 
-        Args:
-            player (int): player id
-            device (Device): set as input device
-        """
-        self.core.retro_set_controller_port_device(player, device)
-        logging.debug("Set player controller type")
-        
+    # def set_player_controller(self, player: int, device: Device):
+    #     """Sets the input device of a player. All player devices default to Device.JOYPAD.
+
+    #     Args:
+    #         player (int): player id
+    #         device (Device): set as input device
+    #     """
+    #     self.core.retro_set_controller_port_device(player, device)
+    #     logging.debug("Set player controller type")
+    
+    # endregion
 
     def load(self, path: str) -> bool:
         """Load a game from ROM
@@ -220,14 +229,14 @@ class RetroPy:
         `data` has no type so it automatically recieves type when cast
 
         Returns:
-            bool: Meaning depending on command. Return `False` to commonly mean a command is not supported.
+            bool: Meaning depending on command. Return `False` to **commonly** mean a command is not supported.
         """
         __i = cmd
         cmd = EnvironmentCommand(cmd)
 
-        def foreach(array, cond):
+        def foreach(array: _Pointer[T], cond: Callable[[T], bool]): # _Pointer[T]
             i = 0
-            v = array[i]
+            v: T = array[i]
             while cond(v):
                 yield v
                 i += 1
@@ -235,6 +244,9 @@ class RetroPy:
 
         if cmd == EnvironmentCommand.UNKNOWN:
             logging.warning(f"{cmd}: cmd={__i} (0x{__i:X}): Consider reading the documentation / source code of the current core to support custom environment commands")
+
+        # All are just here for easier navigation during development.
+        # Some may never be used/not supported at all, so they get removed later on.
 
         elif cmd == EnvironmentCommand.SET_ROTATION:
             logging.debug("SET_ROTATION (not implemented)")
@@ -284,18 +296,20 @@ class RetroPy:
         elif cmd == EnvironmentCommand.SET_INPUT_DESCRIPTORS:
             data = cast(data, POINTER(InputDescriptor))
 
-            # print(value)
-            input: InputDescriptor
-            for input in foreach(data, lambda v: v.description):
-                print(
-                    input.port,
-                    Device(input.device),
-                    input.index,
-                    input.id,
-                    input.description,
-                )
-                ...
+            # Add a controller for each player
 
+            # input: InputDescriptor
+            for input in foreach(data, lambda v: v.description):
+                # print(
+                #     input.port,
+                #     Device(input.device),
+                #     input.index,
+                #     input.id,
+                #     input.description,
+                # )
+                if input.port >= len(self.controllers):
+                    self.controllers.append(device_to_controller(Device(input.device)))
+            
             logging.debug("SET_INPUT_DESCRIPTORS")
 
             return True
@@ -374,7 +388,11 @@ class RetroPy:
             return False
         
         elif cmd == EnvironmentCommand.GET_RUMBLE_INTERFACE:
-            logging.debug("GET_RUMBLE_INTERFACE (not implemented)")
+            # data = cast(data, POINTER(RumbleInterface)).contents
+            # self.__rumble = set_rumble_state_t(lambda *args: print("rumble:", *args))
+            # data.set_rumble_state = self.__rumble
+            
+            logging.debug("GET_RUMBLE_INTERFACE")
             return False
 
         elif cmd == EnvironmentCommand.GET_INPUT_DEVICE_CAPABILITIES:
@@ -413,16 +431,37 @@ class RetroPy:
             # ctypes does not support variadic functions
 
             # data = cast(data, POINTER(LogCallback)).contents
-            # self.__log = log_printf_t(lambda *args: print("log:", args))
+            # self.__log = log_printf_t(lambda *args: print("LOG:", *args))
             # data.log = self.__log
 
-            logging.debug("GET_LOG_INTERFACE (not implemented)")
+            logging.debug("GET_LOG_INTERFACE")
 
             return False
 
         elif cmd == EnvironmentCommand.GET_PERF_INTERFACE:
-            logging.debug("GET_PERF_INTERFACE (not implemented)")
-            return False
+            data = cast(data, POINTER(perf.PerfCallback)).contents
+            
+            self.__perf1 = perf.perf_get_time_usec_t(lambda *args: print("get_time_usec:", *args))
+            self.__perf2 = perf.get_cpu_features_t(lambda *args: print("cpu_features:", *args))
+            self.__perf3 = perf.perf_get_counter_t(lambda *args: print("get_counter:", *args))
+            
+            # self.__perf_counter = perf.PerfCounter()
+            
+            self.__perf4 = perf.perf_register_t(lambda *args: print("register:", *args))
+            self.__perf5 = perf.perf_start_t(lambda *args: print("start:", *args))
+            self.__perf6 = perf.perf_stop_t(lambda *args: print("stop:", *args))
+            self.__perf7 = perf.perf_log_t(lambda *args: print("log:", *args))
+            
+            data.get_time_usec = self.__perf1
+            data.get_cpu_features = self.__perf2
+            data.get_perf_counter = self.__perf3
+            data.perf_register = self.__perf4
+            data.perf_start = self.__perf5
+            data.perf_stop = self.__perf6
+            data.perf_log = self.__perf7
+            
+            logging.debug("GET_PERF_INTERFACE")
+            return True
         
         elif cmd == EnvironmentCommand.GET_LOCATION_INTERFACE:
             logging.debug("GET_LOCATION_INTERFACE (not implemented)")
@@ -470,9 +509,6 @@ class RetroPy:
             logging.debug("SET_MEMORY_MAPS (not implemented)")
 
             return False
-
-        # All are just here for easier navigation during development.
-        # Some may never be used/not supported at all, so they get removed later on.
 
         elif cmd == EnvironmentCommand.SET_GEOMETRY:
             logging.debug("SET_GEOMETRY (not implemented)")
@@ -733,12 +769,10 @@ class RetroPy:
         Returns:
             int: Value of input action
         """
+
+        value = self.controllers[port].get_state(index, id)
+
         logging.debug("Callback: input_state")
-
-        # device = Device(device)
-        # id = Joypad(id)
-        # print(f"{port=}, {device}, {id}")
-
-        return 0
+        return value
 
     # endregion
