@@ -19,7 +19,7 @@ from .performance import perf
 
 from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
-from ..utils.input import device_to_controller, Controller
+from ..utils.input import Controller
 
 T = TypeVar('T')
 
@@ -308,7 +308,7 @@ class RetroPy:
                 #     input.description,
                 # )
                 if input.port >= len(self.controllers):
-                    self.controllers.append(device_to_controller(Device(input.device)))
+                    self.controllers.append(Controller())
             
             logging.debug("SET_INPUT_DESCRIPTORS")
 
@@ -770,7 +770,7 @@ class RetroPy:
             int: Value of input action
         """
 
-        value = self.controllers[port].get_state(index, id)
+        value = self.controllers[port].get_state(Device(device), index, id)
 
         logging.debug("Callback: input_state")
         return value

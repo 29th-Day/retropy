@@ -14,6 +14,8 @@ All contributions should follow some princiles:
 
 * Format using [Black](https://github.com/psf/black)
 
+* Every commit should have an comprehensive commit message
+
 ## Bugs
 
 ...

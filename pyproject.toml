@@ -27,10 +27,11 @@ dependencies = []
 [project.optional-dependencies]
 numpy = ["numpy"]
 
-pygame = ["numpy", "pygame"]
+pygame = ["pygame", "numpy"]
 
-dev = ["numpy", "matplotlib", "pygame"]
+gym = ["gymnasium", "numpy"]
 
+all = ["gymasnium", "pygame", "numpy"]
 
 [project.urls]
 Homepage = "https://github.com/29th-Day/retropy"

@@ -53,9 +53,9 @@ class Mouse(IntEnum):
 
 class Analog(IntEnum):
     """RETRO_DEVICE_INDEX_ANALOG_ & RETRO_DEVICE_ID_ANALOG_"""
-    IDX_LEFT = 0
-    IDX_RIGHT = 1
-    IDX_BUTTON = 2
+    LEFT_STICK = 0
+    RIGHT_STICK = 1
+    BUTTONS = 2
     X = 0
     Y = 1
 

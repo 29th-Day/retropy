@@ -51,7 +51,7 @@ def test3():
 def test4():
     from retropy.utils.input import Joypad
     
-    print(vars(Joypad()))
+    print(isinstance(Joypad.A, Joypad))
 
 def main():
     system = "SNES"
@@ -98,5 +98,5 @@ if __name__ == "__main__":
     # test2()
     # test3()
     # test4()
-    main()
-    # pygame()
+    # main()
+    pygame()

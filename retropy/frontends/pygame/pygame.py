@@ -1,5 +1,5 @@
 from ...core.retro import RetroPy
-from ...core.device import Joypad
+from ...core.device import Device, Joypad, Analog
 
 import pygame
 
@@ -9,16 +9,16 @@ class RetroPyGame(RetroPy):
     running: bool = True
 
     keybindings: dict[int, tuple[int, int]] = {
-        pygame.K_w: (0, 0, Joypad.UP),
-        pygame.K_a: (0, 0, Joypad.LEFT),
-        pygame.K_s: (0, 0, Joypad.DOWN),
-        pygame.K_d: (0, 0, Joypad.RIGHT),
-        pygame.K_l: (0, 0, Joypad.A),
-        pygame.K_k: (0, 0, Joypad.B),
-        pygame.K_i: (0, 0, Joypad.X),
-        pygame.K_j: (0, 0, Joypad.Y),
-        pygame.K_v: (0, 0, Joypad.SELECT),
-        pygame.K_b: (0, 0, Joypad.START),
+        pygame.K_w: (Device.JOYPAD, 0, Joypad.UP),
+        pygame.K_a: (Device.JOYPAD, 0, Joypad.LEFT),
+        pygame.K_s: (Device.JOYPAD, 0, Joypad.DOWN),
+        pygame.K_d: (Device.JOYPAD, 0, Joypad.RIGHT),
+        pygame.K_l: (Device.JOYPAD, 0, Joypad.A),
+        pygame.K_k: (Device.JOYPAD, 0, Joypad.B),
+        pygame.K_i: (Device.JOYPAD, 0, Joypad.X),
+        pygame.K_j: (Device.JOYPAD, 0, Joypad.Y),
+        pygame.K_v: (Device.JOYPAD, 0, Joypad.SELECT),
+        pygame.K_b: (Device.JOYPAD, 0, Joypad.START),
     }
 
     def __init__(
@@ -55,6 +55,9 @@ class RetroPyGame(RetroPy):
             self.clock.tick(self.fps)
 
     def input_poll(self):
+        
+        port = 0 # only support one player
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
                 event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
@@ -63,8 +66,8 @@ class RetroPyGame(RetroPy):
                 continue
 
             elif event.type == pygame.KEYDOWN and event.key in self.keybindings:
-                port, index, button = self.keybindings[event.key]
-                self.controllers[port].set_state(index, button, 1)
+                device, index, button = self.keybindings[event.key]
+                self.controllers[port].set_state(device, index, button, 1)
             elif event.type == pygame.KEYUP and event.key in self.keybindings:
-                port, index, button = self.keybindings[event.key]
-                self.controllers[port].set_state(index, button, 0)
+                device, index, button = self.keybindings[event.key]
+                self.controllers[port].set_state(device, index, button, 0)
