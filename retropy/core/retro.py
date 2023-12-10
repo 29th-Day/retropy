@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from ctypes import *
+from ctypes import _Pointer
 
 import logging
 from pathlib import Path
@@ -19,11 +20,10 @@ from .performance import perf
 
 from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
-from ..utils.input import Controller
+from ..utils.input import Gamepad
+from ..utils.exceptions import InvalidRomError, SavestateError
 
 T = TypeVar('T')
-
-from ctypes import _Pointer
 
 logging.basicConfig(level=logging.WARNING, format="%(levelname)-7s - %(message)s")
 
@@ -34,8 +34,8 @@ class RetroPy:
     pixel_format: PixelFormat
     core_variables: dict[bytes, dict[str, bytes | Sequence[bytes]]] = {}
     frontend_options: dict[str, Any] = {}
-    controllers: list[Controller] = []
-    last_frame: Frame = None  # type can be looked up in frame_advance()
+    controllers: list[Gamepad] = []
+    last_frame: Frame = None
     loaded: bool = False
 
     def __init__(self, path: str, numpy: bool = True) -> None:
@@ -131,14 +131,15 @@ class RetroPy:
     
     # endregion
 
-    def load(self, path: str) -> bool:
+    def load(self, path: str):
         """Load a game from ROM
 
         Args:
             path (str): Parh to ROM
 
-        Returns:
-            bool: Success
+        Raises:
+            FileNotFoundError: rom file does not exist
+            InvalidRomError: rom file cannot be processed
         """
 
         if self.loaded:
@@ -155,9 +156,10 @@ class RetroPy:
 
         self.loaded = bool(self.core.retro_load_game(byref(game)))
 
-        logging.debug("Game loaded")
+        if not self.loaded:
+            raise InvalidRomError(f"file '{game}' cannot be loaded")
 
-        return self.loaded
+        logging.debug("Game loaded")
 
     def unload(self):
         """Unload current game
@@ -183,37 +185,41 @@ class RetroPy:
         self.core.retro_reset()
         logging.debug("Game reset")
 
-    def saveState(self) -> Savestate | None:
+    def save_state(self) -> Savestate:
         """Save current core state
 
+        Raises:
+            SavestateError: State could not be created
+
         Returns:
-            Savestate | None: Savestate if successful else None
+            Savestate: Savestate data
         """
 
         size = self.core.retro_serialize_size()
         save = Savestate(size)
 
-        success = bool(self.core.retro_serialize(save.data, save.size))
 
-        logging.debug(f"Save State ({success})")
+        if not bool(self.core.retro_serialize(save.data, save.size)):
+            raise SavestateError("Savestate creation failed")
 
-        return save if success else None
+        logging.debug(f"State saved")
+        
+        return save
 
-    def loadState(self, savestate: Savestate) -> bool:
+    def load_state(self, savestate: Savestate):
         """Load previously saved core state
 
         Args:
             savestate (Savestate): state to load
 
-        Returns:
-            bool: Success
+        Raises:
+            SavestateError: State could not be loaded
         """
 
-        success = bool(self.core.retro_unserialize(savestate.data, savestate.size))
+        if not bool(self.core.retro_unserialize(savestate.data, savestate.size)):
+            raise SavestateError("Savestate loading failed")
 
-        logging.debug(f"Load State ({success})")
-
-        return success
+        logging.debug(f"State loaded")
 
     # endregion
 
@@ -231,10 +237,9 @@ class RetroPy:
         Returns:
             bool: Meaning depending on command. Return `False` to **commonly** mean a command is not supported.
         """
-        __i = cmd
         cmd = EnvironmentCommand(cmd)
 
-        def foreach(array: _Pointer[T], cond: Callable[[T], bool]): # _Pointer[T]
+        def foreach(array: _Pointer[T], cond: Callable[[T], bool]):
             i = 0
             v: T = array[i]
             while cond(v):
@@ -243,7 +248,7 @@ class RetroPy:
                 v = array[i]
 
         if cmd == EnvironmentCommand.UNKNOWN:
-            logging.warning(f"{cmd}: cmd={__i} (0x{__i:X}): Consider reading the documentation / source code of the current core to support custom environment commands")
+            logging.warning(f"{cmd.name}: cmd={cmd} (0x{cmd:X}): Consider reading the documentation / source code of the current core to support custom environment commands")
 
         # All are just here for easier navigation during development.
         # Some may never be used/not supported at all, so they get removed later on.
@@ -308,7 +313,7 @@ class RetroPy:
                 #     input.description,
                 # )
                 if input.port >= len(self.controllers):
-                    self.controllers.append(Controller())
+                    self.controllers.append(Gamepad())
             
             logging.debug("SET_INPUT_DESCRIPTORS")
 

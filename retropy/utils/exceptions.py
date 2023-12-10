@@ -19,3 +19,9 @@ class GameCannotBeLoaded(RuntimeError):
 
 class UnkownEnvironmentCommand(RuntimeError):
     pass
+
+class InvalidRomError(OSError):
+    pass
+
+class SavestateError(RuntimeError):
+    pass

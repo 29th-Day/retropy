@@ -42,16 +42,21 @@ def test3():
         C = 3
         
         @classmethod
-        def _missing_(cls, value):
+        def _missing_(cls, _):
             return cls.UNKNOWN
         
     print(DefaultEnum(1))
     print(DefaultEnum(123123))
 
 def test4():
-    from retropy.utils.input import Joypad
+    from retropy.utils.input import Device, Joypad, Analog
     
-    print(isinstance(Joypad.A, Joypad))
+    device = Device.JOYPAD
+    index = Analog.BUTTONS
+    # index = 0
+    
+    for id in Joypad:
+        print((id << index))
 
 def main():
     system = "SNES"
@@ -68,14 +73,14 @@ def main():
     for _ in range(1):
         core.frame_advance()
 
-    save = core.saveState()
+    save = core.save_state()
 
     if not save:
         raise RuntimeError("save state")
 
     core.reset()
 
-    success = core.loadState(save)
+    success = core.load_state(save)
 
     if not success:
         raise RuntimeError("load state")

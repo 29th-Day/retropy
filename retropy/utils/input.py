@@ -1,6 +1,6 @@
 from ..core.device import Device, Joypad, Analog
 
-class Controller:
+class Gamepad:
     state: dict
     
     def __init__(self) -> None:

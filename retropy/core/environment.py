@@ -1,11 +1,11 @@
 from ctypes import *
-from enum import Enum
+from enum import IntEnum
 
 EXPERIMENTAL = 0x10000
 PRIVATE = 0x20000
 
 
-class EnvironmentCommand(Enum):
+class EnvironmentCommand(IntEnum):
     """RETRO_ENVIRONMENT_"""
 
     UNKNOWN = 0

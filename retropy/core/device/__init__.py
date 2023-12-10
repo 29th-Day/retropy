@@ -2,7 +2,7 @@ from ctypes import *
 from enum import Enum, IntEnum
 
 
-class Device(Enum):
+class Device(IntEnum):
     """RETRO_DEVICE_"""
 
     NONE = 0
