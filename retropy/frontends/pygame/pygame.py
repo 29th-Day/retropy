@@ -55,9 +55,8 @@ class RetroPyGame(RetroPy):
             self.clock.tick(self.fps)
 
     def input_poll(self):
-        
-        port = 0 # only support one player
-        
+        port = 0  # only support one player
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (
                 event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE

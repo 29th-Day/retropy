@@ -1,7 +1,8 @@
 from ctypes import Array, c_ubyte, c_size_t
 import os
 
-class Savestate():
+
+class Savestate:
     data: Array[c_ubyte]
     size: c_size_t
 
@@ -12,15 +13,15 @@ class Savestate():
         else:
             self.size = None
 
-    def save(self, path: str):
+    def write(self, path: str):
         with open(path, "wb") as f:
             f.write(self.data)
 
-    def load(self, path: str):
+    def read(self, path: str):
         with open(path, "rb") as f:
             f.seek(0, os.SEEK_END)
             self.size = f.tell()
             f.seek(0, os.SEEK_SET)
             self.data = (c_ubyte * self.size).from_buffer_copy(f.read())
-            
+
         return self

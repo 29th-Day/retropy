@@ -1,7 +1,7 @@
 from ctypes import *
 
 from retropy import RetroPy
-from env import CORES, GAMES
+from env import SYSTEMS
 
 
 def test1():
@@ -34,66 +34,76 @@ def test2():
 
 def test3():
     from enum import Enum
-    
+
     class DefaultEnum(Enum):
         UNKNOWN = 0
         A = 1
         B = 2
         C = 3
-        
+
         @classmethod
         def _missing_(cls, _):
             return cls.UNKNOWN
-        
+
     print(DefaultEnum(1))
     print(DefaultEnum(123123))
 
+
 def test4():
-    from retropy.utils.input import Device, Joypad, Analog
-    
-    device = Device.JOYPAD
-    index = Analog.BUTTONS
-    # index = 0
-    
-    for id in Joypad:
-        print((id << index))
+    from retropy.core.environment import EnvironmentCommand
+
+    for cmd in EnvironmentCommand:
+        print(f"EnvironmentCommand.{cmd.name}: self.env_{cmd.name},")
+
+
+class Test5:
+    def __init__(self) -> None:
+        self.funcs = {0: self.func}
+
+    def func(self):
+        print("Test5")
+
+
+class Super(Test5):
+    def __init__(self) -> None:
+        super().__init__()
+        # self.funcs[0] =
+
+    def func(self):
+        print("Super")
+
+
+def test5():
+    s = Super()
+    s.funcs[0]()
+
+
+dll, game = SYSTEMS["GBA"]
+
 
 def main():
-    system = "SNES"
+    core = RetroPy(dll)
 
-    core = RetroPy(CORES[system])
-
-    success = core.load(GAMES[system])
-
-    if not success:
-        raise RuntimeError("load game")
-
-    # core.unload()
+    core.load(game)
 
     for _ in range(1):
         core.frame_advance()
 
     save = core.save_state()
 
-    if not save:
-        raise RuntimeError("save state")
+    save.write("./savestate.svt")
 
     core.reset()
 
-    success = core.load_state(save)
-
-    if not success:
-        raise RuntimeError("load state")
+    core.load_state(save)
 
 
 def pygame():
     from retropy.frontends import RetroPyGame
 
-    system = 'SNES'
+    core = RetroPyGame(dll, 3, 60)
 
-    core = RetroPyGame(CORES[system], 3, 60)
-
-    success = core.load(GAMES[system])
+    core.load(game)
 
     core.run()
 
@@ -103,5 +113,6 @@ if __name__ == "__main__":
     # test2()
     # test3()
     # test4()
+    # test5()
     # main()
     pygame()

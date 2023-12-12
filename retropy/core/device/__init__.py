@@ -13,6 +13,7 @@ class Device(IntEnum):
     ANALOG = 5
     # POINTER = 6
 
+
 class Joypad(IntEnum):
     """RETRO_DEVICE_ID_JOYPAD_"""
 
@@ -34,6 +35,7 @@ class Joypad(IntEnum):
     R3 = 15
     # MASK = 256
 
+
 """
 class Mouse(IntEnum):
     # RETRO_DEVICE_ID_
@@ -51,13 +53,16 @@ class Mouse(IntEnum):
     BUTTON_5 = 10
 """
 
+
 class Analog(IntEnum):
     """RETRO_DEVICE_INDEX_ANALOG_ & RETRO_DEVICE_ID_ANALOG_"""
+
     LEFT_STICK = 0
     RIGHT_STICK = 1
     BUTTONS = 2
     X = 0
     Y = 1
+
 
 class InputDescriptor(Structure):
     """retro_input_descriptor"""
