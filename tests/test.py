@@ -1,7 +1,7 @@
 from ctypes import *
 
 from retropy import RetroPy
-from env import SYSTEMS
+from tests.env import SYSTEMS
 
 
 def test1():
@@ -78,6 +78,25 @@ def test5():
     s.funcs[0]()
 
 
+def test6():
+    import pygame
+    import numpy as np
+
+    freq = 44100
+    Hz = 440
+
+    pygame.mixer.init(frequency=freq, size=-16, channels=1)
+
+    buffer = np.sin(2 * np.pi * np.arange(freq) * Hz / freq).astype(np.float16)
+
+    print(buffer.shape)
+
+    sound = pygame.mixer.Sound(buffer)
+
+    sound.play(0)
+    pygame.time.wait(int(sound.get_length() * 1000))
+
+
 dll, game = SYSTEMS["GBA"]
 
 
@@ -101,7 +120,7 @@ def main():
 def pygame():
     from retropy.frontends import RetroPyGame
 
-    core = RetroPyGame(dll, 3, 60)
+    core = RetroPyGame(dll, 3)
 
     core.load(game)
 
@@ -114,5 +133,6 @@ if __name__ == "__main__":
     # test3()
     # test4()
     # test5()
+    # test6()
     # main()
     pygame()

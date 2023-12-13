@@ -27,7 +27,7 @@ from ..utils.input import Gamepad
 from ..utils.exceptions import InvalidRomError, SavestateError
 from ..utils.ptr_array import foreach, cast_void
 
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)-7s - %(message)s")
+logging.basicConfig(level=logging.WARNING, format="%(levelname)-7s - %(message)s")
 
 
 class RetroPy:
