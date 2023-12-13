@@ -1,7 +1,12 @@
-from ctypes import *
+# Resolve relative import
+from pathlib import Path
+import sys
+
+sys.path.append(str((Path(__file__) / ".." / ".." / "src").resolve()))
 
 from retropy import RetroPy
-from tests.env import SYSTEMS
+from env import SYSTEMS
+from ctypes import *
 
 
 def test1():

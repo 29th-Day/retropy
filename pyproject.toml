@@ -10,21 +10,6 @@ requires-python = ">=3.12"
 readme = "README.md"
 license = {text = "MIT"}
 
-[project.optional-dependencies]
-numpy = ["numpy"]
-
-pygame = ["pygame", "numpy"]
-
-gym = ["gymnasium", "numpy"]
-
-all = ["gymasnium", "pygame", "numpy"]
-
-
-
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
 # https://pypi.org/classifiers/
 classifiers = [
     "Development Status :: 1 - Planning",
@@ -35,6 +20,30 @@ classifiers = [
     "Topic :: Games/Entertainment",
     "Typing :: Typed",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.12.0",
+    "numpy>=1.26.2",
+    "mkdocs-material[all]>=9.5.2",
+]
+numpy = [
+    "numpy>=1.26.2",
+]
+pygame = [
+    "pygame>=2.5.2",
+    "numpy>=1.26.2",
+]
+gym = [
+    "gymnasium>=0.29.1",
+    "numpy>=1.26.2",
+]
+
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
 
 [project.urls]
 Homepage = "https://github.com/29th-Day/retropy"
