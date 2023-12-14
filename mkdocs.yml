@@ -22,6 +22,15 @@ theme:
         icon: material/brightness-auto
         name: Switch to light mode
 
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to system mode
+      primary: teal
+      accent: lime
+      
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -31,14 +40,6 @@ theme:
       primary: teal
       accent: purple
 
-    # Palette toggle for dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      toggle:
-        icon: material/weather-night
-        name: Switch to system mode
-      primary: teal
-      accent: lime
 
 # plugins:
 #   - social
@@ -47,8 +48,8 @@ extra:
   social:
     - icon: fontawesome/brands/github-alt
       link: https://github.com/29th-Day
-  version:
-    provider: mike
+  # version:
+  #   provider: mike
 
 markdown_extensions:
   - pymdownx.highlight:
