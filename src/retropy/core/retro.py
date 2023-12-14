@@ -25,7 +25,7 @@ from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
 from ..utils.input import Gamepad
 from ..utils.exceptions import InvalidRomError, SavestateError
-from ..utils.ptr_array import foreach, cast_void
+from ..utils.ptr_array import foreach
 
 logging.basicConfig(level=logging.WARNING, format="%(levelname)-7s - %(message)s")
 

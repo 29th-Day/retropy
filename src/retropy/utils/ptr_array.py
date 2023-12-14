@@ -14,11 +14,3 @@ def foreach(array: _Pointer[T], cond: Callable[[T], bool]):
         yield v
         i += 1
         v = array[i]
-
-
-def cast_void(func, type):
-    def wrapper(data):
-        data = cast(data, type).contents
-        return func(data)
-
-    return wrapper
