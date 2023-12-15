@@ -8,6 +8,8 @@ from retropy import RetroPy
 from env import SYSTEMS
 from ctypes import *
 
+import numpy as np
+
 
 def test1():
     from retropy.core.environment import CoreVariable
@@ -84,22 +86,21 @@ def test5():
 
 
 def test6():
-    import pygame
-    import numpy as np
+    import io
 
-    freq = 44100
-    Hz = 440
+    bytes = io.BytesIO()
 
-    pygame.mixer.init(frequency=freq, size=-16, channels=1)
+    bytes.write(b"1234")
+    bytes.seek(0)
+    bytes.write(b"5678")
 
-    buffer = np.sin(2 * np.pi * np.arange(freq) * Hz / freq).astype(np.float16)
+    len = bytes.seek(0, 2)
+    print(len, bytes.getvalue().decode("utf-8"))
 
-    print(buffer.shape)
+    bytes.truncate(4)
 
-    sound = pygame.mixer.Sound(buffer)
-
-    sound.play(0)
-    pygame.time.wait(int(sound.get_length() * 1000))
+    len = bytes.seek(0, 2)
+    print(len, bytes.getvalue().decode("utf-8"))
 
 
 dll, game = SYSTEMS["GBA"]
@@ -132,6 +133,16 @@ def pygame():
     core.run()
 
 
+def pyglet():
+    from retropy.frontends import RetroPyGlet
+
+    core = RetroPyGlet(dll, 3)
+
+    core.load(game)
+
+    core.run()
+
+
 if __name__ == "__main__":
     # test1()
     # test2()
@@ -140,4 +151,5 @@ if __name__ == "__main__":
     # test5()
     # test6()
     # main()
-    pygame()
+    # pygame()
+    pyglet()

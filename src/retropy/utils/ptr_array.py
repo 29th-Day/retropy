@@ -4,6 +4,12 @@ from ctypes import *
 from ctypes import _Pointer
 from typing import TypeVar, Callable
 
+try:
+    import numpy as np
+except ImportError:
+    # np = None
+    pass
+
 T = TypeVar("T")
 
 

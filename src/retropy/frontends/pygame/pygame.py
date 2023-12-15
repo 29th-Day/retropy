@@ -73,8 +73,8 @@ class RetroPyGame(RetroPy):
                 continue
 
             elif event.type == pygame.KEYDOWN and event.key in self.keybindings:
-                device, index, button = self.keybindings[event.key]
-                self.controllers[port].set_state(device, index, button, 1)
+                # device, index, button = self.keybindings[event.key]
+                self.controllers[port].set_state(*self.keybindings[event.key], 1)
             elif event.type == pygame.KEYUP and event.key in self.keybindings:
-                device, index, button = self.keybindings[event.key]
-                self.controllers[port].set_state(device, index, button, 0)
+                # device, index, button = self.keybindings[event.key]
+                self.controllers[port].set_state(*self.keybindings[event.key], 0)
