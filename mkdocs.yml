@@ -2,6 +2,19 @@ site_name: retropy's Documentation
 site_url: https://29th-Day.github.io/retropy/
 repo_url: https://github.com/29th-Day/retropy
 repo_name: 29th-Day/retropy
+
+nav:
+  - index.md
+  - tutorials.md
+  - how-to-guides.md
+  - frontends.md
+  - reference.md
+  - mkdocs.md
+
+plugins:
+  # https://realpython.com/python-project-documentation-with-mkdocs/
+  - mkdocstrings
+
 theme:
   name: material
   features:
@@ -12,7 +25,7 @@ theme:
     - search.suggest
     - search.highlight
     - content.tabs.link
-    - content.code.annotation
+    - content.code.annotate
     - content.code.copy
   language: en
   palette:
