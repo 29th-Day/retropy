@@ -6,6 +6,7 @@ groups = ["default", "dev", "numpy", "pygame", "gym", "pyglet"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
 content_hash = "sha256:11e68a668e8d9b90cade48f0f112db9f3f9d78766e03520c7f871fb00939ba14"
+content_hash = "sha256:11e68a668e8d9b90cade48f0f112db9f3f9d78766e03520c7f871fb00939ba14"
 
 [[package]]
 name = "aiohttp"
