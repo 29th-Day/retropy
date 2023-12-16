@@ -1,3 +1,9 @@
+# retropy/core/retro.py
+
+"""
+Provide basic python wrapper for dll Cores.
+"""
+
 from ctypes import *
 
 import logging
