@@ -4,6 +4,12 @@ from ctypes import *
 from ctypes import _Pointer
 from typing import TypeVar, Callable
 
+try:
+    import numpy as np
+except ImportError:
+    # np = None
+    pass
+
 T = TypeVar("T")
 
 
@@ -14,11 +20,3 @@ def foreach(array: _Pointer[T], cond: Callable[[T], bool]):
         yield v
         i += 1
         v = array[i]
-
-
-def cast_void(func, type):
-    def wrapper(data):
-        data = cast(data, type).contents
-        return func(data)
-
-    return wrapper
