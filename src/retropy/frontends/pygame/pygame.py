@@ -1,24 +1,22 @@
 from ...core.retro import RetroPy
-from ...core.device import Device, Joypad
-
+from ...utils.input import GamePadInput
 import pygame
 
 
 class RetroPyGame(RetroPy):
-    # options: PyGameOption
     running: bool = True
 
     keybindings: dict[int, tuple[int, int]] = {
-        pygame.K_w: (Device.JOYPAD, 0, Joypad.UP),
-        pygame.K_a: (Device.JOYPAD, 0, Joypad.LEFT),
-        pygame.K_s: (Device.JOYPAD, 0, Joypad.DOWN),
-        pygame.K_d: (Device.JOYPAD, 0, Joypad.RIGHT),
-        pygame.K_l: (Device.JOYPAD, 0, Joypad.A),
-        pygame.K_k: (Device.JOYPAD, 0, Joypad.B),
-        pygame.K_i: (Device.JOYPAD, 0, Joypad.X),
-        pygame.K_j: (Device.JOYPAD, 0, Joypad.Y),
-        pygame.K_v: (Device.JOYPAD, 0, Joypad.SELECT),
-        pygame.K_b: (Device.JOYPAD, 0, Joypad.START),
+        pygame.K_w: GamePadInput.UP,
+        pygame.K_a: GamePadInput.LEFT,
+        pygame.K_s: GamePadInput.DOWN,
+        pygame.K_d: GamePadInput.RIGHT,
+        pygame.K_l: GamePadInput.A,
+        pygame.K_k: GamePadInput.B,
+        pygame.K_i: GamePadInput.X,
+        pygame.K_j: GamePadInput.Y,
+        pygame.K_v: GamePadInput.SELECT,
+        pygame.K_b: GamePadInput.START,
     }
 
     FPS: int = 30
@@ -74,7 +72,7 @@ class RetroPyGame(RetroPy):
 
             elif event.type == pygame.KEYDOWN and event.key in self.keybindings:
                 # device, index, button = self.keybindings[event.key]
-                self.controllers[port].set_state(*self.keybindings[event.key], 1)
+                self.controllers[port][self.keybindings[event.key]] = 1
             elif event.type == pygame.KEYUP and event.key in self.keybindings:
                 # device, index, button = self.keybindings[event.key]
-                self.controllers[port].set_state(*self.keybindings[event.key], 0)
+                self.controllers[port][self.keybindings[event.key]] = 0

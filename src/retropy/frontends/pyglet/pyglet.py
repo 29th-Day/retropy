@@ -1,28 +1,26 @@
 from ctypes import POINTER, c_int16
 from ...core.retro import RetroPy
-from ...core.device import Device, Joypad
+from ...utils.input import GamePadInput
 
 import pyglet
 import pyglet.window.key as key
-from pyglet.media.codecs.base import Source, AudioFormat, AudioData, StreamingSource
-
-import io
+from pyglet.media.codecs.base import Source, AudioFormat, AudioData
 
 import numpy as np
 
 
 class RetroPyGlet(RetroPy):
     keybindings = {
-        key.W: (Device.JOYPAD, 0, Joypad.UP),
-        key.A: (Device.JOYPAD, 0, Joypad.LEFT),
-        key.S: (Device.JOYPAD, 0, Joypad.DOWN),
-        key.D: (Device.JOYPAD, 0, Joypad.RIGHT),
-        key.L: (Device.JOYPAD, 0, Joypad.A),
-        key.K: (Device.JOYPAD, 0, Joypad.B),
-        key.I: (Device.JOYPAD, 0, Joypad.X),
-        key.J: (Device.JOYPAD, 0, Joypad.Y),
-        key.V: (Device.JOYPAD, 0, Joypad.SELECT),
-        key.B: (Device.JOYPAD, 0, Joypad.START),
+        key.W: GamePadInput.UP,
+        key.A: GamePadInput.LEFT,
+        key.S: GamePadInput.DOWN,
+        key.D: GamePadInput.RIGHT,
+        key.L: GamePadInput.A,
+        key.K: GamePadInput.B,
+        key.I: GamePadInput.X,
+        key.J: GamePadInput.Y,
+        key.V: GamePadInput.SELECT,
+        key.B: GamePadInput.START,
     }
 
     def __init__(self, path: str, scaling: float = 1.0) -> None:
@@ -63,13 +61,13 @@ class RetroPyGlet(RetroPy):
         def on_key_press(symbol, _):
             action = self.keybindings.get(symbol, None)
             if action:
-                self.controllers[0].set_state(*action, 1)
+                self.controllers[0][action] = 1
 
         @window.event
         def on_key_release(symbol, _):
             action = self.keybindings.get(symbol, None)
             if action:
-                self.controllers[0].set_state(*action, 0)
+                self.controllers[0][action] = 0
 
         @window.event
         def on_draw():
