@@ -1,7 +1,8 @@
-env.py
+/env.py
 __pycache__
 *.log
 /dist
 .pdm-*
+pdm.lock
 .venv
 *.h

@@ -51,30 +51,19 @@ def pyglet():
     core.run()
 
 
+def gym():
+    from retropy.frontends import RetroGym
+
+    env = RetroGym(dll, game)
+
+
 def test():
-    from retropy.core.device import Device, Analog, Joypad, AnalogIdx
-
-    device = Device.ANALOG
-    idx = [Analog.LEFT_STICK, Analog.RIGHT_STICK]
-    ids = [AnalogIdx.X, AnalogIdx.Y]
-
-    def hash(device, index, id):
-        return device * index + id
-
-    for index in idx:
-        for id in ids:
-            print(hash(device, index, id), f"{device.name}, {index.name}, {id.name}")
-
-    device = Device.JOYPAD
-    index = Analog.BUTTONS
-    ids = [i for i in Joypad]
-
-    for id in ids:
-        print(hash(device, index, id), f"{device.name}, {index.name}, {id.name}")
+    ...
 
 
 if __name__ == "__main__":
     # test()
     # main()
     # pygame()
-    pyglet()
+    # pyglet()
+    gym()
