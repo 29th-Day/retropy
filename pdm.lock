@@ -5,8 +5,7 @@
 groups = ["default", "dev", "numpy", "pygame", "gym", "pyglet"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:11e68a668e8d9b90cade48f0f112db9f3f9d78766e03520c7f871fb00939ba14"
-content_hash = "sha256:11e68a668e8d9b90cade48f0f112db9f3f9d78766e03520c7f871fb00939ba14"
+content_hash = "sha256:d4699b76b90e397c34e9d66726c802c28dd06d7be8a784b3882f3e65e7213a4b"
 
 [[package]]
 name = "aiohttp"
@@ -323,6 +322,32 @@ files = [
 ]
 
 [[package]]
+name = "mkdocs-gen-files"
+version = "0.5.0"
+requires_python = ">=3.7"
+summary = "MkDocs plugin to programmatically generate documentation pages during the build"
+dependencies = [
+    "mkdocs>=1.0.3",
+]
+files = [
+    {file = "mkdocs_gen_files-0.5.0-py3-none-any.whl", hash = "sha256:7ac060096f3f40bd19039e7277dd3050be9a453c8ac578645844d4d91d7978ea"},
+    {file = "mkdocs_gen_files-0.5.0.tar.gz", hash = "sha256:4c7cf256b5d67062a788f6b1d035e157fc1a9498c2399be9af5257d4ff4d19bc"},
+]
+
+[[package]]
+name = "mkdocs-literate-nav"
+version = "0.6.1"
+requires_python = ">=3.7"
+summary = "MkDocs plugin to specify the navigation in Markdown instead of YAML"
+dependencies = [
+    "mkdocs>=1.0.3",
+]
+files = [
+    {file = "mkdocs_literate_nav-0.6.1-py3-none-any.whl", hash = "sha256:e70bdc4a07050d32da79c0b697bd88e9a104cf3294282e9cb20eec94c6b0f401"},
+    {file = "mkdocs_literate_nav-0.6.1.tar.gz", hash = "sha256:78a7ab6d878371728acb0cdc6235c9b0ffc6e83c997b037f4a5c6ff7cef7d759"},
+]
+
+[[package]]
 name = "mkdocs-material"
 version = "9.5.2"
 requires_python = ">=3.8"
@@ -341,8 +366,7 @@ dependencies = [
     "requests~=2.26",
 ]
 files = [
-    {ftic documentation from sources, for MkDocs."
-dependencies = [ile = "mkdocs_material-9.5.2-py3-none-any.whl", hash = "sha256:6ed0fbf4682491766f0ec1acc955db6901c2fd424c7ab343964ef51b819741f5"},
+    {file = "mkdocs_material-9.5.2-py3-none-any.whl", hash = "sha256:6ed0fbf4682491766f0ec1acc955db6901c2fd424c7ab343964ef51b819741f5"},
     {file = "mkdocs_material-9.5.2.tar.gz", hash = "sha256:ca8b9cd2b3be53e858e5a1a45ac9668bd78d95d77a30288bb5ebc1a31db6184c"},
 ]
 
@@ -357,51 +381,16 @@ files = [
 ]
 
 [[package]]
-name = "mkdocstrings"
-version = "0.24.0"
-requires_python = ">=3.8"
-summary = "Automa
-    "Jinja2>=2.11.1",
-    "Markdown>=3.3",
-    "MarkupSafe>=1.1",
-    "click>=7.0",
-    "mkdocs-autorefs>=0.3.1",
-    "mkdocs>=1.4",
-    "platformdirs>=2.2.0",
-    "pymdown-extensions>=6.3",
-]
-files = [
-    {file = "mkdocstrings-0.24.0-py3-none-any.whl", hash = "sha256:f4908560c10f587326d8f5165d1908817b2e280bbf707607f601c996366a2264"},
-    {file = "mkdocstrings-0.24.0.tar.gz", hash = "sha256:222b1165be41257b494a9d29b14135d2b7ca43f38161d5b10caae03b87bd4f7e"},
-]
-
-[[package]]
-name = "mkdocstrings-python"
-version = "1.7.5"
-requires_python = ">=3.8"
-summary = "A Python handler for mkdocstrings."
+name = "mkdocs-section-index"
+version = "0.3.8"
+requires_python = ">=3.7"
+summary = "MkDocs plugin to allow clickable sections that lead to an index page"
 dependencies = [
-    "griffe>=0.37",
-    "mkdocstrings>=0.20",
+    "mkdocs>=1.2",
 ]
 files = [
-    {file = "mkdocstrings_python-1.7.5-py3-none-any.whl", hash = "sha256:5f6246026353f0c0785135db70c3fe9a5d9318990fc7ceb11d62097b8ffdd704"},
-    {file = "mkdocstrings_python-1.7.5.tar.gz", hash = "sha256:c7d143728257dbf1aa550446555a554b760dcd40a763f077189d298502b800be"},
-]
-
-[[package]]
-name = "mkdocstrings"
-version = "0.24.0"
-extras = ["python"]
-requires_python = ">=3.8"
-summary = "Automatic documentation from sources, for MkDocs."
-dependencies = [
-    "mkdocstrings-python>=0.5.2",
-    "mkdocstrings==0.24.0",
-]
-files = [
-    {file = "mkdocstrings-0.24.0-py3-none-any.whl", hash = "sha256:f4908560c10f587326d8f5165d1908817b2e280bbf707607f601c996366a2264"},
-    {file = "mkdocstrings-0.24.0.tar.gz", hash = "sha256:222b1165be41257b494a9d29b14135d2b7ca43f38161d5b10caae03b87bd4f7e"},
+    {file = "mkdocs_section_index-0.3.8-py3-none-any.whl", hash = "sha256:823d298d78bc1e73e23678ff60889f3c369c2167b03dba73fea88bd0e268a60d"},
+    {file = "mkdocs_section_index-0.3.8.tar.gz", hash = "sha256:bbd209f0da79441baf136ef3a9c40665bb9681d1fb62c73ca2f116fd1388a404"},
 ]
 
 [[package]]
