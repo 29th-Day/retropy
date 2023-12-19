@@ -60,7 +60,7 @@ def pixel_to_rgb(
 
     Args:
         pixel (int | np.ndarray): single pixel value or whole np frame
-        format (PIXEL_FORMAT): color format for raw buffer
+        format (PixelFormat): color format for raw buffer
     """
 
     # 0x1F = 0b00011111

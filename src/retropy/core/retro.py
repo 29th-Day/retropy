@@ -1,3 +1,9 @@
+# retropy/core/retro.py
+
+"""
+Provide basic python wrapper for dll Cores.
+"""
+
 from ctypes import *
 
 import logging
@@ -178,7 +184,7 @@ class RetroPy:
         """Retrieve cores regional code
 
         Returns:
-            RETRO_REGION: region
+            Region: region
         """
         return Region(self.core.retro_get_region())
 
@@ -186,7 +192,7 @@ class RetroPy:
         """Retrieve cores system information
 
         Returns:
-            retro_system_info: core information (static w.r.t. core)
+            SystemInfo: core information
         """
         info = SystemInfo()
         self.core.retro_get_system_info(byref(info))
@@ -196,7 +202,7 @@ class RetroPy:
         """Retrieve cores system information specific for a game
 
         Returns:
-            retro_system_av_info: core information (dynamic w.r.t. game)
+            SystemAvInfo: core information
         """
         info = SystemAvInfo()
         self.core.retro_get_system_av_info(byref(info))
