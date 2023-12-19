@@ -5,6 +5,7 @@ on:
       - main
     paths:
     - docs/**
+    - src/**
     - mkdocs.yml
 permissions:
   contents: write

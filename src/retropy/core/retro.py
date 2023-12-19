@@ -29,7 +29,7 @@ from .options import (
 
 from ..utils.savestate import Savestate
 from ..utils.video import buffer_to_frame, Frame
-from ..utils.input import Gamepad
+from ..utils.input import InputDevice, GamePad
 from ..utils.exceptions import InvalidRomError, SavestateError
 from ..utils.ptr_array import foreach
 
@@ -42,7 +42,7 @@ class RetroPy:
     pixel_format: PixelFormat
     core_variables: dict[bytes, dict[str, bytes | Sequence[bytes]]] = {}
     # frontend_options: dict[str, Any] = {}
-    controllers: list[Gamepad] = []
+    controllers: list[InputDevice] = []
     last_frame: Frame = None
     loaded: bool = False
 
@@ -170,7 +170,7 @@ class RetroPy:
 
     # endregion
 
-    # region Properties
+    # region Core properties
 
     def version(self) -> int:
         """Retrieve API version
@@ -395,7 +395,7 @@ class RetroPy:
 
         Args:
             port (int): Player
-            device (int): Device identifier (`RETRO_DEVICE`)
+            device (int): Device identifier (`Device`)
             index (int): Only used for analog device
             id (int): Action ID
 
@@ -474,7 +474,7 @@ class RetroPy:
             #     input.description,
             # )
             if input.port >= len(self.controllers):
-                self.controllers.append(Gamepad())
+                self.controllers.append(GamePad())
 
         logging.debug("SET_INPUT_DESCRIPTORS")
         return False
