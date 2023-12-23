@@ -53,12 +53,41 @@ def pyglet():
 
 def gym():
     from retropy.frontends import RetroGym
+    from retropy.frontends.gym.wrapper import DiscreteInputs
 
     env = RetroGym(dll, game)
 
+    map = [["A"], ["B"], ["UP"], ["DOWN"], ["LEFT"], ["RIGHT"]]
+    env = DiscreteInputs(env, map)
+    print(env.observation_space)
+    print(env.action_space)
+
+    obs, info = env.reset()
+
+    done = False
+
+    while not done:
+        action = env.action_space.sample()
+        print(action)
+
+        obs, reward, term, trunc, info = env.step(action)
+        done = term or trunc
+
+        break
+
 
 def test():
-    ...
+    class Test:
+        _FIELDS_ = ("A", "B", "X", "Y")
+
+        def __init__(self) -> None:
+            for f in self._FIELDS_:
+                setattr(self, f, f)
+
+        def __getattr__(self, name):
+            ...
+
+    print(Test().A)
 
 
 if __name__ == "__main__":

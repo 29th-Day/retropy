@@ -9,11 +9,11 @@ from typing import Sequence
 
 # gymnasium environment with continuous inputs
 
+# https://gymnasium.farama.org/api/spaces/fundamental/#gymnasium.spaces.MultiDiscrete
+
 
 class RetroGym(gym.Env):
-    def __init__(self, core: str, rom: str, player: int = 1):
-        self.player = player
-
+    def __init__(self, core: str, rom: str):
         self.core = RetroPy(core, True)
         self.core.load(rom)
 
@@ -22,7 +22,7 @@ class RetroGym(gym.Env):
         obs_shape = (geometry.base_height, geometry.base_width, 3)
 
         self.observation_space = spaces.Box(0, 255, obs_shape, dtype=np.uint8)
-        self.action_space = spaces.Box(0, 1, (self.player, len(GamePadInput)))
+        self.action_space = spaces.Box(0, 1, (len(GamePadInput),))
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -34,13 +34,10 @@ class RetroGym(gym.Env):
         return observation, info
 
     def step(
-        self, action: Sequence[Sequence[float]]
+        self, action: Sequence[float]
     ) -> tuple[np.ndarray, float, bool, bool, dict]:
-        # Set input in core
-        for player, action in enumerate(action):
-            for i, name in enumerate(GamePadInput):
-                player[name] = action[i]
-        # gym API
+        self.__set_controller_input(action)
+
         observation = self.core.frame_advance()
         reward = self._reward_function(observation)
         terminated, truncated = self._stopping_criterion()
@@ -48,15 +45,16 @@ class RetroGym(gym.Env):
 
         return observation, reward, terminated, truncated, info
 
-    # Helper functions
+    # Helper function
 
-    def _reward_function(self, obs: np.ndarray) -> float:
-        reward = 0.0
+    def __set_controller_input(self, action):
+        for input, value in zip(GamePadInput, action):
+            self.core.controllers[0][input] = value
 
-        return reward
+    # RL functions
+
+    def _reward_function(self, observation: np.ndarray) -> float:
+        raise NotImplementedError()
 
     def _stopping_criterion(self) -> tuple[bool, bool]:
-        terminated = False  # Goal reached
-        truncated = False  # Timesteps elapsed
-
-        return terminated, truncated
+        raise NotImplementedError()

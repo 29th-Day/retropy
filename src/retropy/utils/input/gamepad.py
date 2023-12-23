@@ -4,8 +4,9 @@ from .base import InputDevice
 from enum import StrEnum
 
 
+# __iter__() is *in order of declaration* and depended on
 class GamePadInput(StrEnum):
-    """Based on the Nintendo© button layout"""
+    """Based on Nintendo© button layout"""
 
     LEFT_X = "LEFT_X"
     """Left Control Stick - Horizontal ↔"""
@@ -70,30 +71,10 @@ class GamePad(InputDevice):
             raise ValueError(f"device ({device})")
 
     def reset(self):
-        self.state = {
-            GamePadInput.LEFT_X: 0.0,
-            GamePadInput.LEFT_Y: 0.0,
-            GamePadInput.RIGHT_X: 0.0,
-            GamePadInput.RIGHT_Y: 0.0,
-            GamePadInput.B: 0,
-            GamePadInput.Y: 0,
-            GamePadInput.START: 0,
-            GamePadInput.SELECT: 0,
-            GamePadInput.UP: 0,
-            GamePadInput.DOWN: 0,
-            GamePadInput.LEFT: 0,
-            GamePadInput.RIGHT: 0,
-            GamePadInput.A: 0,
-            GamePadInput.X: 0,
-            GamePadInput.L1: 0,
-            GamePadInput.R1: 0,
-            GamePadInput.L2: 0,
-            GamePadInput.R2: 0,
-            GamePadInput.L3: 0,
-            GamePadInput.R3: 0,
-        }
+        self.state = {}
 
-        # print(self.state)
+        for input in GamePadInput:
+            self.state[input] = 0.0
 
 
 RETRO_INPUT_TO_STR = {
