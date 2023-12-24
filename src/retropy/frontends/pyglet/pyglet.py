@@ -46,7 +46,7 @@ class RetroPyGlet(RetroPy):
             caption="Pyglet: Libretro",
         )
 
-        self.audio = BufferSource()
+        self.audio = BufferSource(sample_rate=512 * FPS)
         self.audio.play()
 
         self.last_audio_frame = np.zeros((512, 2), dtype=np.int16)
@@ -84,43 +84,27 @@ class RetroPyGlet(RetroPy):
 
     def audio_sample_batch(self, data: POINTER(c_int16), frames: int) -> int:
         data = np.ctypeslib.as_array(data, (frames * 2,)).reshape((frames, 2))
-
         self.last_audio_frame = data
-
-        # print(data)
-
-        # pyglet.media.load()
-
-        # self.audio_data.data = data
-
-        # pyglet.media.synthesis.Sine()
-
-        # data = AudioData(data, len(data), 0, frames // 44100, [])
-
-        # self.audio_player.queue()
-
-        # self.audio.set_audio_data()
-
         return 0
 
 
 class BufferSource(pyglet.media.Source):
-    def __init__(self) -> None:
-        self.audio_format = AudioFormat(
-            channels=2, sample_size=16, sample_rate=512 * 60
-        )
+    def __init__(self, sample_rate: int) -> None:
+        CHANNELS = 2
+        BIT_SIZE = 16
 
-        self._data = np.zeros((512, 2), dtype=np.int16)
+        self.audio_format = AudioFormat(CHANNELS, BIT_SIZE, sample_rate)
+
+        self._data = np.zeros((sample_rate, CHANNELS), dtype=np.int16)
 
     def set_audio_data(self, data: np.ndarray):
-        self._data = data
+        size = len(data)
+
+        buffer = np.roll(self._data, -size, axis=0)
+        buffer[-size:] = data
+        self._data = buffer
 
     def get_audio_data(self, num_bytes, compensation_time=0):
-        print(num_bytes, compensation_time)
-
         data = self._data.tobytes()
         duration = float(len(data)) / self.audio_format.bytes_per_second
-
-        print(len(data), duration)
-
         return AudioData(data, len(data), 0, duration, [])

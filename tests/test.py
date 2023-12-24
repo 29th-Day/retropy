@@ -77,22 +77,21 @@ def gym():
 
 
 def test():
-    class Test:
-        _FIELDS_ = ("A", "B", "X", "Y")
+    buffer = np.zeros((8, 2), dtype=np.int16)
 
-        def __init__(self) -> None:
-            for f in self._FIELDS_:
-                setattr(self, f, f)
+    len = 2
+    for i in range(0, len * 10, len):
+        data = np.stack([np.arange(i, i + len)] * 2).transpose()
 
-        def __getattr__(self, name):
-            ...
+        buffer = np.roll(buffer, -len, axis=0)
+        buffer[-len:] = data
 
-    print(Test().A)
+        print(buffer)
 
 
 if __name__ == "__main__":
     # test()
     # main()
     # pygame()
-    # pyglet()
-    gym()
+    pyglet()
+    # gym()
