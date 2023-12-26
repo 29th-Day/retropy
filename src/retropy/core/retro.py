@@ -25,6 +25,7 @@ from .options import (
     UpdateOptionsDisplayCallback,
     core_options_update_display_callback_t,
 )
+from .memory import MemoryMap, MemoryRegion
 
 
 from ..utils.savestate import Savestate
@@ -32,8 +33,9 @@ from ..utils.video import buffer_to_frame, Frame
 from ..utils.input import InputDevice, GamePad
 from ..utils.exceptions import InvalidRomError, SavestateError
 from ..utils.ptr_array import foreach
+from ..utils.memory import RAM, InternalMemory
 
-logging.basicConfig(level=logging.WARNING, format="%(levelname)-7s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(levelname)-7s - %(message)s")
 
 
 class RetroPy:
@@ -43,22 +45,82 @@ class RetroPy:
     core_variables: dict[bytes, dict[str, bytes | Sequence[bytes]]] = {}
     # frontend_options: dict[str, Any] = {}
     controllers: list[InputDevice] = []
+
     last_frame: Frame = None
+    """Last video frame returned by `video_refresh` callback."""
+
     loaded: bool = False
+    """Whether a game is loaded."""
+
+    memory: RAM
+    """Cores memory / RAM. Only available if game is `loaded`."""
 
     # region magic methods / (de)init
 
     def __init__(self, path: str, numpy: bool = True) -> None:
-        """Loads needed DLL and initializes the libretro core
+        """Loads needed shared object and initializes the libretro core
 
         Args:
-            path (str): Path to valid ROM file
+            path (str): Path to valid core / shared object
         """
-        self.path = Path(path)
+        self.path = Path(path).resolve()
         self.numpy = numpy
 
         # Load core dll
         self.core = cdll.LoadLibrary(self.path)
+
+        # region Set ctypes arg-/restype
+        self.core.retro_set_environment.argtypes = [cb.environment_t]
+        self.core.retro_set_environment.restype = None
+        self.core.retro_set_video_refresh.argtypes = [cb.video_refresh_t]
+        self.core.retro_set_video_refresh.restype = None
+        self.core.retro_set_audio_sample.argtypes = [cb.audio_sample_t]
+        self.core.retro_set_audio_sample.restype = None
+        self.core.retro_set_audio_sample_batch.argtypes = [cb.audio_sample_batch_t]
+        self.core.retro_set_audio_sample_batch.restype = None
+        self.core.retro_set_input_poll.argtypes = [cb.input_poll_t]
+        self.core.retro_set_input_poll.restype = None
+        self.core.retro_set_input_state.argtypes = [cb.input_state_t]
+        self.core.retro_set_input_state.restype = None
+        #
+        self.core.retro_init.argtypes = None
+        self.core.retro_init.restype = None
+        self.core.retro_deinit.argtypes = None
+        self.core.retro_deinit.restype = None
+        self.core.retro_api_version.argtypes = None
+        self.core.retro_api_version.restype = c_uint
+        self.core.retro_get_system_info.argtypes = [POINTER(SystemInfo)]
+        self.core.retro_get_system_info.restype = None
+        self.core.retro_get_system_av_info.argtypes = [POINTER(SystemAvInfo)]
+        self.core.retro_get_system_av_info.restype = None
+        # retro_set_controller_port_device
+        self.core.retro_reset.argtypes = None
+        self.core.retro_reset.restype = None
+        self.core.retro_run.argtypes = None
+        self.core.retro_run.restype = None
+        self.core.retro_serialize_size.argtypes = None
+        self.core.retro_serialize_size.restype = c_size_t
+        self.core.retro_serialize.argtypes = [c_void_p, c_size_t]
+        self.core.retro_serialize.restype = c_bool
+        self.core.retro_unserialize.argtypes = [c_void_p, c_size_t]
+        self.core.retro_unserialize.restype = c_bool
+        self.core.retro_cheat_reset.argtypes = None
+        self.core.retro_cheat_reset.restype = None
+        self.core.retro_cheat_set.argtypes = [c_uint, c_bool, c_char_p]
+        self.core.retro_cheat_set.restype = None
+        self.core.retro_load_game.argtypes = [POINTER(GameInfo)]
+        self.core.retro_load_game.restype = c_bool
+        # retro_load_game_special
+        self.core.retro_unload_game.argtypes = None
+        self.core.retro_unload_game.restype = None
+        self.core.retro_get_region.argtypes = None
+        self.core.retro_get_region.restype = c_uint
+        self.core.retro_get_memory_data.argtypes = [c_uint]
+        self.core.retro_get_memory_data.restype = c_void_p
+        self.core.retro_get_memory_size.argtypes = [c_uint]
+        self.core.retro_get_memory_size.restype = c_size_t
+
+        # endregion
 
         logging.info(f"Loading core: '{str(self.path)}'")
 
@@ -142,7 +204,7 @@ class RetroPy:
         }
         """Handles all libretro environment commands.
         
-        Can be overwritten or expanded by sub class.
+        Can be overwritten or expanded to modify behaviour.
         """
 
         # Create callback objects (and keep them in scope)
@@ -163,6 +225,9 @@ class RetroPy:
 
         # Initialize core
         self.core.retro_init()
+
+        # Initialize (empty) memory pointer
+        self.memory = RAM()
 
     def __del__(self):
         self.unload()
@@ -239,6 +304,7 @@ class RetroPy:
 
         if self.loaded:
             logging.debug("Game already loaded")
+            return
 
         romPath = Path(path).resolve()
         if not romPath.is_file():
@@ -255,6 +321,21 @@ class RetroPy:
                 f"file '{game.path.decode('utf-8')}' cannot be loaded"
             )
 
+        # Get Memory Pointer
+
+        def set_ptr(region, name):
+            size: int = self.core.retro_get_memory_size(region)
+            ptr: c_void_p = self.core.retro_get_memory_data(region)
+
+            if size > 0 and ptr is not None:
+                ptr = cast(ptr, POINTER(c_ubyte))
+                setattr(self.memory, name, InternalMemory(ptr, size))
+
+        set_ptr(MemoryRegion.SAVE_RAM, "save")
+        set_ptr(MemoryRegion.RTC, "rtc")
+        set_ptr(MemoryRegion.SYSTEM_RAM, "system")
+        set_ptr(MemoryRegion.VIDEO_RAM, "video")
+
         logging.info("Game loaded")
 
     def unload(self):
@@ -264,6 +345,8 @@ class RetroPy:
         """
         self.core.retro_unload_game()
         self.loaded = False
+
+        self.memory._clear()
 
         logging.info("Game unloaded")
 
@@ -315,6 +398,9 @@ class RetroPy:
             raise SavestateError("Loading savestate failed")
 
         logging.info(f"State loaded")
+
+    # Cheats - index: identifier, enabled: toggle, code: cheat code
+    # https://github.com/libretro/RetroArch/blob/master/cheat_manager.c#L78
 
     # endregion
 
@@ -443,7 +529,9 @@ class RetroPy:
     def env_GET_SYSTEM_DIRECTORY(self, data) -> bool:
         data = cast(data, POINTER(c_char_p)).contents
 
-        system_directory = Path("C:/Users/Gerald/core").absolute()
+        system_directory = Path("~/.libretro").expanduser().resolve()
+
+        system_directory.mkdir(parents=True, exist_ok=True)
 
         data = c_char_p(str(system_directory).encode("utf-8"))
 
@@ -499,7 +587,12 @@ class RetroPy:
     def env_GET_VARIABLE(self, data) -> bool:
         data = cast(data, POINTER(CoreVariable)).contents
 
-        data.value = self.core_variables[data.key]["value"]
+        # var = self.core_variables.get(data.key, None)
+        # if var:
+        #     data.value = var["value"]
+
+        if var := self.core_variables.get(data.key, None):
+            data.value = var["value"]
 
         logging.debug(f"GET_VARIABLE: key={data.key}")
         return False
@@ -521,7 +614,7 @@ class RetroPy:
                 "desc": desc,
             }
 
-        # print(self.variables)
+        # print(self.core_variables)
 
         logging.debug(f"SET_VARIABLES")
 
@@ -596,7 +689,7 @@ class RetroPy:
 
         logging.debug("GET_LOG_INTERFACE")
 
-        return False
+        return True
 
     def env_GET_PERF_INTERFACE(self, data) -> bool:
         data = cast(data, POINTER(perf.PerfCallback)).contents
@@ -671,8 +764,16 @@ class RetroPy:
         return True
 
     def env_SET_MEMORY_MAPS(self, data) -> bool:
-        logging.debug("SET_MEMORY_MAPS (not implemented)")
-        return False
+        data = cast(data, POINTER(MemoryMap)).contents
+
+        for i in range(data.num_descriptors):
+            desc = data.descriptors[i]
+            # print(f"{desc.start:016X}, {desc.addrspace}")
+            # print(desc)
+            pass
+
+        logging.debug("SET_MEMORY_MAPS")
+        return True
 
     def env_SET_GEOMETRY(self, data) -> bool:
         logging.debug("SET_GEOMETRY (not implemented)")

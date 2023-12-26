@@ -11,7 +11,7 @@ from ctypes import *
 import numpy as np
 
 
-dll, game = SYSTEMS["GBA"]
+dll, game = SYSTEMS["NES"]
 
 
 def main():
@@ -19,20 +19,23 @@ def main():
 
     core.load(game)
 
-    for _ in range(1):
+    for _ in range(100):
         core.frame_advance()
 
-    save = core.save_state()
+    print(core.memory.system[0x7F0:0x7FF])
+    print(core.memory.system[-16:])
 
-    save.write("./savestate.svt")
+    # save = core.save_state()
 
-    core.reset()
+    # save.write("./savestate.svt")
 
-    core.load_state(save)
+    # core.reset()
+
+    # core.load_state(save)
 
 
 def pygame():
-    from retropy.frontends import RetroPyGame
+    from retropy.frontends.pygame import RetroPyGame
 
     core = RetroPyGame(dll, 3)
 
@@ -42,7 +45,7 @@ def pygame():
 
 
 def pyglet():
-    from retropy.frontends import RetroPyGlet
+    from retropy.frontends.pyglet import RetroPyGlet
 
     core = RetroPyGlet(dll, 3)
 
@@ -52,7 +55,7 @@ def pyglet():
 
 
 def gym():
-    from retropy.frontends import RetroGym
+    from retropy.frontends.gym import RetroGym
     from retropy.frontends.gym.wrapper import DiscreteInputs
 
     env = RetroGym(dll, game)
@@ -77,21 +80,16 @@ def gym():
 
 
 def test():
-    buffer = np.zeros((8, 2), dtype=np.int16)
+    l = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-    len = 2
-    for i in range(0, len * 10, len):
-        data = np.stack([np.arange(i, i + len)] * 2).transpose()
+    list
 
-        buffer = np.roll(buffer, -len, axis=0)
-        buffer[-len:] = data
-
-        print(buffer)
+    print(l[-2:])
 
 
 if __name__ == "__main__":
     # test()
-    # main()
+    main()
     # pygame()
-    pyglet()
+    # pyglet()
     # gym()

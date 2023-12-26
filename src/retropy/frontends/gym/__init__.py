@@ -4,3 +4,5 @@
 # from gymnasium.envs.registration import register
 
 # register(id="retropy/RetroGym-v0", entry_point="retropy.frontends.gym.gym:RetroGym")
+
+from .gym import RetroGym

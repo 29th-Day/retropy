@@ -2,7 +2,7 @@ from ctypes import *
 from typing import Callable
 
 from .game import GameInfo
-from .os.system import SystemAvInfo
+from .os.system import SystemAvInfo, SystemInfo
 
 
 class CoreDLL:
@@ -40,7 +40,7 @@ class CoreDLL:
     def retro_api_version(self) -> int:
         ...
 
-    def retro_get_system_info(self, info: POINTER(retro_system_info)) -> None:
+    def retro_get_system_info(self, info: POINTER(SystemInfo)) -> None:
         ...
 
     def retro_get_system_av_info(self, info: POINTER(SystemAvInfo)) -> None:
