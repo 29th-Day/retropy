@@ -1,92 +1,4 @@
-from typing import Callable
-from ctypes import c_uint, c_bool, c_char_p
-
-
-class Cheat:
-    __index: int
-    """Apperently intended to be used as an identifier. Many cores just dont use this. No significance for the user."""
-    __enabled: bool
-    """Whether cheat is enabled."""
-    __code: bytes
-    """Cheat code content."""
-
-    __update_cheat: Callable = None
-
-    def __init__(
-        self, index: int, enabled: bool, code: bytes, update: Callable
-    ) -> None:
-        self.__index = index
-        self.__enabled = enabled
-        self.__code = code
-        self.__update_cheat = update
-
-        self.__update()
-
-    def __repr__(self) -> str:
-        return f"Cheat: {{ {self.__enabled}, {self.__code.decode()} }}"
-
-    def __update(self):
-        self.__update_cheat(
-            c_uint(self.__index), c_bool(self.__enabled), c_char_p(self.__code)
-        )
-
-    @property
-    def code(self):
-        return self.__code
-
-    @property
-    def enabled(self):
-        return self.__enabled
-
-    @enabled.setter
-    def enabled(self, val: bool):
-        self.__enabled = val
-        print(self.__enabled)
-        self.__update()
-
-
-class _CheatManager:
-    """Manages cheat code in accordance with the capabilities provided by libretro's cheat API."""
-
-    store: dict[str, Cheat]
-
-    __update_cheat: Callable[[int, bool, bytes], None] = None
-    __reset_cheat: Callable[[None], None] = None
-
-    def __init__(self, update: Callable, reset: Callable) -> None:
-        self.__update_cheat = update
-        self.__reset_cheat = reset
-        self._clear()
-
-    def __iter__(self):
-        return self.store.items()
-
-    def add(self, name: str, code: str | bytes, enabled: bool = True):
-        """Add a cheat code.
-
-        Args:
-            name (str): Name of cheat code. Used as unique key.
-            code (str | bytes): Cheat code.
-            enabled (bool, optional): Whether cheat is enabled. Defaults to True.
-        """
-
-        self.__index += 1
-        self.store[name] = Cheat(
-            self.__index,
-            enabled,
-            code if isinstance(code, bytes) else code.decode(),
-            self.__update_cheat,
-        )
-
-        print(self.store[name])
-
-    def __getitem__(self, name: str):
-        return self.store[name]
-
-    def _clear(self):
-        self.store = {}
-        self.__index = 0
-        self.__reset_cheat()
+from typing import Callable, Iterator
 
 
 class CheatManager:
@@ -94,6 +6,11 @@ class CheatManager:
     Manages cheat code in accordance with the capabilities provided by libretro's cheat API.
 
     Upon inspection of common cores implementations, some don't fully utilize the parameters given to the `retro_cheat_set` function i.e. ignore `index` and `enabled`. Therefore, to provide the most universal solution, all added cheats are always enabled and removing a cheat resets all cheats and re-adds the remaining.
+
+    Examples:
+        >>> cheats = CheatManager(retro_cheat_set, retro_cheat_reset)
+        >>> cheats['name'] = b'code'
+        >>> cheats.pop('name')
     """
 
     store: dict[str, bytes]
@@ -107,23 +24,51 @@ class CheatManager:
         self._clear()
 
     def _clear(self):
+        """Clears cheats after no longer needed."""
         self.store = {}
         self.__index = 0
         self.__reset_cheats()
 
-    def __getitem__(self, name: str):
+    def __getitem__(self, name: str) -> bytes:
+        """Return code of cheat by name.
+
+        Args:
+            name (str): Cheat name
+
+        Returns:
+            bytes: Cheat code
+        """
         return self.store[name]
 
     def __setitem__(self, name: str, code: bytes):
+        """Adds a new cheat to the core.
+
+        Args:
+            name (str): Cheat name. Acts as key.
+            code (bytes): Cheat code.
+
+        Raises:
+            TypeError: 'code' is not bytes.
+            KeyError: 'name' already exists.
+        """
+
         # Check type since object is used with ctypes
         if not isinstance(code, bytes):
             return TypeError("'code' must be a bytes object")
 
+        if self.store.get(name, None):
+            raise KeyError(f"Cheat name '{name}' already exists.")
+
         self.store[name] = code
         self.__add_cheat(code)
 
-    def __iter__(self):
-        return self.store.items()
+    def __iter__(self) -> Iterator[tuple[str, bytes]]:
+        """Iterate over all cheat codes.
+
+        Returns:
+            list[tuple[str, bytes]]: Iterator over all cheat codes.
+        """
+        return iter(self.store.items())
 
     def __repr__(self) -> str:
         return str(self.store)
@@ -132,7 +77,15 @@ class CheatManager:
         self.__index += 1
         self.__update_cheat(self.__index, True, code)
 
-    def pop(self, name: str):
+    def pop(self, name: str) -> bytes:
+        """Remove cheat code.
+
+        Args:
+            name (str): Cheat name.
+
+        Returns:
+            bytes: Cheat code.
+        """
         self.__reset_cheats()
         code = self.store.pop(name)
 

@@ -1,3 +1,3 @@
 """
-Module information: frontends
+Module contains ready-to-use frontends.
 """

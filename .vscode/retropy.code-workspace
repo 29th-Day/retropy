@@ -7,6 +7,11 @@
 	"settings": {
 		"yaml.schemas": {
 			"https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
-		}
+		},
+		"cSpell.words": [
+			"frontends",
+			"libretro",
+			"retropy"
+		]
 	}
 }

@@ -1,5 +1,5 @@
-from ...core.retro import RetroPy
-from ...utils.input import GamePadInput
+from ..core.retro import RetroPy
+from ..utils.input import GamePadInput
 import pygame
 
 

@@ -1,4 +1,4 @@
-site_name: retropy's Documentation
+site_name: RetroPy - Documentation
 site_url: https://29th-Day.github.io/retropy/
 repo_url: https://github.com/29th-Day/retropy
 repo_name: 29th-Day/retropy
@@ -6,7 +6,6 @@ repo_name: 29th-Day/retropy
 nav:
   - index.md
   - installation.md
-  # - tutorials.md
   - Tutorials:
       - tutorials/index.md
       - tutorials/getting-started.md
@@ -16,8 +15,12 @@ nav:
   - Code Reference: reference/
   - mkdocs.md
 
+watch:
+  - src
+
 plugins:
   - search
+  - section-index
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -28,7 +31,6 @@ plugins:
       - scripts/gen_ref_pages.py
   - literate-nav:
       nav_file: SUMMARY.md
-  - section-index
 
 theme:
   favicon: img/favicon.ico

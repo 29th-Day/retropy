@@ -5,12 +5,12 @@ class InternalMemory:
     """
     Readonly internal memory of emulator. Supports common list indexing patterns.
 
-    Example:
-    >>> mem = InternalMemory(ptr, 10)
-    >>> print(mem[0])
-    >>> print(mem[-1])
-    >>> print(mem[2:7])
-    >>> print(mem[8:])
+    Examples:
+        >>> mem = InternalMemory(ptr, 10)
+        >>> print(mem[0])
+        >>> print(mem[-1])
+        >>> print(mem[2:7])
+        >>> print(mem[8:])
     """
 
     def __init__(self, ptr: POINTER(c_ubyte), length: int):
@@ -71,6 +71,8 @@ class InternalMemory:
 
 
 class RAM:
+    """Holds different memory types of emulator."""
+
     save: InternalMemory
     """Save RAM for persistent game data. Usually found on a game cartridge, backed up by a battery."""
 

@@ -13,20 +13,18 @@ pip install retropy[numpy]  # retropy + numpy
 pip install retropy[gym]    # retropy + numpy + gymnasium
 pip install retropy[pygame] # retropy + numpy + pygame
 pip install retropy[pyglet] # retropy + numpy + pyglet
-pip install retropy[dev]    # retropy + numpy + black + mkdocs
+pip install retropy[dev]    # retropy + dev dependencies
 ```
 
 ## Releases
 
-Download wanted version from [Releases](https://github.com/29th-Day/retropy/releases "GitHub Releases"). Extract to local or path-accessable folder.
+Every release is archived and can be downloaded from [Releases](https://github.com/29th-Day/retropy/releases "GitHub Releases").
 
 ## Nightly Version
 
-1. Clone current version from repo
+The current development version can be download via
 ```
 git clone https://github.com/29th-Day/retropy.git
 ```
-
-2. Move `src/retropy` to local or path-accessable folder
 
 [^1]: `ModuleNotFoundError` will be raised if unavailable feature is called

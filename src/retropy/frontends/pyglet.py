@@ -1,6 +1,6 @@
 from ctypes import POINTER, c_int16
-from ...core.retro import RetroPy
-from ...utils.input import GamePadInput
+from ..core.retro import RetroPy
+from ..utils.input import GamePadInput
 
 import pyglet
 import pyglet.window.key as key

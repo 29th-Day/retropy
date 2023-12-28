@@ -51,6 +51,11 @@ class GamePadInput(StrEnum):
 
 
 class GamePad(InputDevice):
+    """Input device resembling all modern game controller.
+
+    Two C-Sticks, 2x2 Shoulder Buttons, 4 Action Buttons, 4 Directional Buttons.
+    """
+
     threshold: float = 0.5
 
     def get_state(self, device: int, index: int, id: int) -> int:
