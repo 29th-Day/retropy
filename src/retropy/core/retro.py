@@ -56,6 +56,11 @@ class RetroPy:
     memory: RAM
     """Cores memory / RAM. Only available if game is `loaded`."""
 
+    cheats: CheatManager
+    """Add cheats to currently loaded game.
+    
+    Codes can be found on the internet e.g. `gamehacking.org` or `github.com/libretro/libretro-database`"""
+
     # region magic methods / (de)init
 
     def __init__(self, path: str, numpy: bool = True) -> None:
