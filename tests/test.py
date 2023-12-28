@@ -41,6 +41,11 @@ def pygame():
 
     core.load(game)
 
+    core.cheats["9 Lives"] = b"AATOZE"
+    core.cheats.pop("9 Lives")
+
+    # core.cheats["9 Lives"].enabled = False
+
     core.run()
 
 
@@ -89,7 +94,7 @@ def test():
 
 if __name__ == "__main__":
     # test()
-    main()
-    # pygame()
+    # main()
+    pygame()
     # pyglet()
     # gym()

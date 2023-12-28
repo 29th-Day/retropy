@@ -2,6 +2,17 @@ from ctypes import c_ubyte, POINTER
 
 
 class InternalMemory:
+    """
+    Readonly internal memory of emulator. Supports common list indexing patterns.
+
+    Example:
+    >>> mem = InternalMemory(ptr, 10)
+    >>> print(mem[0])
+    >>> print(mem[-1])
+    >>> print(mem[2:7])
+    >>> print(mem[8:])
+    """
+
     def __init__(self, ptr: POINTER(c_ubyte), length: int):
         self.__ptr = ptr
         self.__length = length
@@ -9,7 +20,19 @@ class InternalMemory:
     def __len__(self):
         return self.__length
 
-    def __getitem__(self, index: int | slice):
+    def __getitem__(self, index: int | slice) -> int | list[int]:
+        """Reads emulator memory
+
+        Args:
+            index (int | slice): Memory address
+
+        Raises:
+            IndexError: Index is out of range
+            TypeError: Index has unsupported type
+
+        Returns:
+            int: requested byte(s)
+        """
         if isinstance(index, int):
             # Handle negative values
             if index < 0:

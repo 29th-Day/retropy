@@ -34,6 +34,7 @@ from ..utils.input import InputDevice, GamePad
 from ..utils.exceptions import InvalidRomError, SavestateError
 from ..utils.ptr_array import foreach
 from ..utils.memory import RAM, InternalMemory
+from ..utils.cheats import CheatManager
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)-7s - %(message)s")
 
@@ -226,8 +227,13 @@ class RetroPy:
         # Initialize core
         self.core.retro_init()
 
-        # Initialize (empty) memory pointer
+        # Initialize (empty) memory pointer (get loaded on game load)
         self.memory = RAM()
+
+        # Initialize cheats manager
+        self.cheats = CheatManager(
+            self.core.retro_cheat_set, self.core.retro_cheat_reset
+        )
 
     def __del__(self):
         self.unload()
@@ -347,6 +353,7 @@ class RetroPy:
         self.loaded = False
 
         self.memory._clear()
+        self.cheats._clear()
 
         logging.info("Game unloaded")
 
@@ -497,10 +504,6 @@ class RetroPy:
     # endregion
 
     # region environment commands
-
-    def env_UNKNOWN(self, cmd: int):
-        logging.debug("SET_ROTATION (not implemented)")
-        return False
 
     def env_SET_ROTATION(self, data) -> bool:
         logging.debug("GET_OVERSCAN (not implemented)")
