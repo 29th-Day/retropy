@@ -23,8 +23,8 @@ class GameCannotBeLoaded(RuntimeError):
     pass
 
 
-class UnkownEnvironmentCommand(RuntimeError):
-    """Envrionment command used by core is not recognized."""
+class UnknownEnvironmentCommand(RuntimeError):
+    """Environment command used by core is not recognized."""
 
     pass
 
@@ -37,5 +37,11 @@ class InvalidRomError(OSError):
 
 class SavestateError(RuntimeError):
     """Savestate could not be handled."""
+
+    pass
+
+
+class FeatureNotAvailable(ModuleNotFoundError):
+    """A requested feature is not currently available."""
 
     pass

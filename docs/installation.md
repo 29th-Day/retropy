@@ -1,5 +1,8 @@
 # Installation
 
+Supported python versions: ...
+Supported OS: ...
+
 ## pip
 
 ```
@@ -27,4 +30,4 @@ The current development version can be download via
 git clone https://github.com/29th-Day/retropy.git
 ```
 
-[^1]: `ModuleNotFoundError` will be raised if unavailable feature is called
+[^1]: `FeatureNotAvailable` will be raised if unavailable feature is called

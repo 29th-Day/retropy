@@ -44,8 +44,6 @@ def pygame():
     core.cheats["9 Lives"] = b"AATOZE"
     core.cheats.pop("9 Lives")
 
-    # core.cheats["9 Lives"].enabled = False
-
     core.run()
 
 

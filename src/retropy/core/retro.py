@@ -40,7 +40,13 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)-7s - %(message)s")
 
 
 class RetroPy:
-    """Python(ic) frontend for libretro"""
+    """
+    Python(ic) frontend for libretro
+
+    Attributes:
+        pixel_format (PixelFormat): Pixel format
+        memory (RAM): memory
+    """
 
     pixel_format: PixelFormat
     core_variables: dict[bytes, dict[str, bytes | Sequence[bytes]]] = {}
@@ -208,10 +214,6 @@ class RetroPy:
             EnvironmentCommand.GET_DEVICE_POWER: self.env_GET_DEVICE_POWER,
             EnvironmentCommand.SET_NETPACKET_INTERFACE: self.env_SET_NETPACKET_INTERFACE,
         }
-        """Handles all libretro environment commands.
-        
-        Can be overwritten or expanded to modify behaviour.
-        """
 
         # Create callback objects (and keep them in scope)
         self.__cb_env = cb.environment_t(self.environment)
